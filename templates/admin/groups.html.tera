@@ -46,6 +46,9 @@
                 </td>
                 <td>
                     <a href="/admin/groups/{{ group.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this group?')">Delete</a>
+                    {% if not group.start_time %}
+                    <a href="/admin/groups/{{ group.id }}/start_timer" class="btn btn-success" onclick="return confirm('Start this groups timer?')">Start</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

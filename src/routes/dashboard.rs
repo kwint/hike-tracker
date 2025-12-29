@@ -1,7 +1,7 @@
 use chrono::Utc;
+use rocket::http::Status;
 use rocket::Route;
 use rocket::State;
-use rocket::http::Status;
 use rocket_dyn_templates::{context, Template};
 use serde::Serialize;
 
@@ -42,9 +42,9 @@ fn calculate_group_stats(group: &Group, scans: &[Scan], total_posts: usize) -> G
         .sum();
 
     let total_time_minutes = group
-        .finish_time
-        .zip(group.start_time)
-        .map(|(end, start)| (end - start).num_minutes());
+        .start_time
+        .map(|start| group.finish_time.unwrap_or_else(Utc::now) - start)
+        .map(|t| t.num_minutes());
 
     let walking_time_minutes = total_time_minutes.map(|t| t - idle_time_minutes);
 
@@ -78,10 +78,7 @@ pub fn dashboard(state: &State<AppState>) -> Template {
 }
 
 #[get("/group/<id>")]
-pub fn group_detail(
-    state: &State<AppState>,
-    id: &str,
-) -> Result<Template, Status> {
+pub fn group_detail(state: &State<AppState>, id: &str) -> Result<Template, Status> {
     let db = state.db.lock().unwrap();
 
     let group = match Group::get_by_id(db.conn(), id).ok().flatten() {

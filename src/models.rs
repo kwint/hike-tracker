@@ -119,6 +119,14 @@ impl Group {
         Ok(())
     }
 
+    pub fn set_start_time(conn: &Connection, id: &str, start_time: DateTime<Utc>) -> Result<()> {
+        conn.execute(
+            "UPDATE groups SET start_time = ?1 WHERE id = ?2",
+            params![start_time.to_rfc3339(), id],
+        )?;
+        Ok(())
+    }
+
     pub fn set_finish_time(conn: &Connection, id: &str, finish_time: DateTime<Utc>) -> Result<()> {
         conn.execute(
             "UPDATE groups SET finish_time = ?1 WHERE id = ?2",

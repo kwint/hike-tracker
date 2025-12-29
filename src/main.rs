@@ -27,6 +27,7 @@ fn rocket() -> _ {
         .manage(AppState { db: Mutex::new(db) })
         .mount("/", routes![index])
         .mount("/admin", routes::admin::routes())
+        .mount("/admin/groups", routes::groups::routes())
         .mount("/scan", routes::scan::routes())
         .mount("/dashboard", routes::dashboard::routes())
         .attach(Template::fairing())
