@@ -1,0 +1,71 @@
+{% extends "base" %}
+
+{% block title %}Scan - {{ group.name }} - Hike Tracker{% endblock %}
+
+{% block content %}
+<h1>Scan: {{ group.name }}</h1>
+
+<div class="card">
+    <h2>Record Arrival / Departure</h2>
+    <form action="/scan/{{ group.id }}" method="post">
+        <div>
+            <label for="post_id">Select Post</label>
+            <select id="post_id" name="post_id" required>
+                <option value="">-- Select a post --</option>
+                {% for post in posts %}
+                <option value="{{ post.id }}">
+                    {{ post.order }}. {{ post.name }}
+                    {% if post.is_finish %}(FINISH){% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn-success">Record Scan</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Current Status</h2>
+    <p><strong>Start Time:</strong> {{ group.start_time }}</p>
+    {% if group.finish_time %}
+    <p><strong>Finish Time:</strong> {{ group.finish_time }}</p>
+    <p class="status-badge status-finished" style="display: inline-block; margin-top: 0.5rem;">Hike Completed!</p>
+    {% endif %}
+
+    <h3 style="margin-top: 1rem;">Post Visits</h3>
+    {% if scans | length > 0 %}
+    <table>
+        <thead>
+            <tr>
+                <th>Post</th>
+                <th>Arrival</th>
+                <th>Departure</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in scans %}
+            <tr>
+                <td>
+                    {% for post in posts %}
+                        {% if post.id == scan.post_id %}{{ post.name }}{% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ scan.arrival_time }}</td>
+                <td>{{ scan.departure_time | default(value="-") }}</td>
+                <td>
+                    {% if scan.departure_time %}
+                    <span class="status-badge status-finished">Left</span>
+                    {% else %}
+                    <span class="status-badge status-active">At Post</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No posts visited yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

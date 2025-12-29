@@ -1,0 +1,64 @@
+{% extends "base" %}
+
+{% block title %}Manage Posts - Hike Tracker{% endblock %}
+
+{% block content %}
+<h1>Manage Posts</h1>
+
+<div class="card">
+    <h2>Add New Post</h2>
+    <form action="/admin/posts" method="post">
+        <div>
+            <label for="name">Post Name</label>
+            <input type="text" id="name" name="name" required placeholder="e.g., Checkpoint 1">
+        </div>
+        <div>
+            <label for="order">Order</label>
+            <input type="number" id="order" name="order" required min="1" placeholder="1">
+        </div>
+        <div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="is_finish" name="is_finish" value="true">
+                Finish Post
+            </label>
+        </div>
+        <button type="submit">Add Post</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Existing Posts</h2>
+    {% if posts | length > 0 %}
+    <table>
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>{{ post.order }}</td>
+                <td>{{ post.name }}</td>
+                <td>
+                    {% if post.is_finish %}
+                    <span class="status-badge status-finished">Finish</span>
+                    {% else %}
+                    <span class="status-badge status-active">Regular</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/admin/posts/{{ post.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this post?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No posts yet. Add checkpoints and a finish post above.</p>
+    {% endif %}
+</div>
+{% endblock %}
