@@ -10,17 +10,23 @@
     <table>
         <tr>
             <th>Start Time</th>
-            <td>{{ detail.group.start_time }}</td>
+            <td>{{ detail.group.start_time | date(format="%Y-%m-%d %H:%M") }}</td>
         </tr>
         <tr>
             <th>Finish Time</th>
-            <td>{{ detail.group.finish_time | default(value="Not finished") }}</td>
+            <td>
+                {% if detail.group.finish_time %}
+                    {{ detail.group.finish_time | date(format="%Y-%m-%d %H:%M") }}
+                {% else %}
+                    Not finished
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Total Time</th>
             <td>
-                {% if detail.total_time_minutes %}
-                {{ detail.total_time_minutes }} minutes
+                {% if detail.total_time %}
+                {{ detail.total_time.0 | date(format="%H:%M:%S") }}
                 {% else %}
                 -
                 {% endif %}
@@ -29,8 +35,8 @@
         <tr>
             <th>Walking Time</th>
             <td>
-                {% if detail.walking_time_minutes %}
-                {{ detail.walking_time_minutes }} minutes
+                {% if detail.walking_time %}
+                {{ detail.walking_time.0 | date(format="%H:%M:%S") }}
                 {% else %}
                 -
                 {% endif %}
@@ -38,7 +44,7 @@
         </tr>
         <tr>
             <th>Idle Time (at posts)</th>
-            <td>{{ detail.idle_time_minutes }} minutes</td>
+            <td>{{ detail.idle_time.0 | date(format="%H:%M:%S") }}</td>
         </tr>
     </table>
 </div>
@@ -63,21 +69,21 @@
                 <td>{{ ps.post.name }}</td>
                 <td>
                     {% if ps.scan %}
-                    {{ ps.scan.arrival_time }}
+                    {{ ps.scan.arrival_time | date(format="%Y-%m-%d %H:%M") }}
                     {% else %}
                     -
                     {% endif %}
                 </td>
                 <td>
                     {% if ps.scan and ps.scan.departure_time %}
-                    {{ ps.scan.departure_time }}
+                    {{ ps.scan.departure_time | date(format="%Y-%m-%d %H:%M") }}
                     {% else %}
                     -
                     {% endif %}
                 </td>
                 <td>
-                    {% if ps.idle_minutes %}
-                    {{ ps.idle_minutes }} min
+                    {% if ps.idle_time %}
+                    {{ ps.idle_time.0 | date(format="%H:%M:%S") }}
                     {% else %}
                     -
                     {% endif %}

@@ -24,22 +24,22 @@
             {% for gs in group_stats %}
             <tr>
                 <td>{{ gs.group.name }}</td>
-                <td>{{ gs.posts_visited }} / {{ gs.total_posts }}</td>
+                <td>{{ gs.post_scans | length }} / {{ total_posts }}</td>
                 <td>
-                    {% if gs.total_time_minutes %}
-                    {{ gs.total_time_minutes }} min
+                    {% if gs.total_time %}
+                    {{ gs.total_time.0 | date(format="%H:%M") }}
                     {% else %}
                     -
                     {% endif %}
                 </td>
                 <td>
-                    {% if gs.walking_time_minutes %}
-                    {{ gs.walking_time_minutes }} min
+                    {% if gs.walking_time %}
+                    {{ gs.walking_time.0 | date(format="%H:%M") }}
                     {% else %}
                     -
                     {% endif %}
                 </td>
-                <td>{{ gs.idle_time_minutes }} min</td>
+                <td>{{ gs.idle_time.0 | date(format="%H:%M") }}</td>
                 <td>
                     {% if gs.is_finished %}
                     <span class="status-badge status-finished">Finished</span>

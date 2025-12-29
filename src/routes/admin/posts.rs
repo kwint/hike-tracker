@@ -15,14 +15,14 @@ pub struct NewPost {
     is_finish: bool,
 }
 
-#[get("/posts")]
+#[get("/")]
 pub fn posts(state: &State<AppState>) -> Template {
     let db = state.db.lock().unwrap();
     let posts = Post::get_all(db.conn()).unwrap_or_default();
     Template::render("admin/posts", context! { posts: posts })
 }
 
-#[post("/posts", data = "<form>")]
+#[post("/", data = "<form>")]
 pub fn create_post(state: &State<AppState>, form: Form<NewPost>) -> Redirect {
     let db = state.db.lock().unwrap();
 
@@ -32,7 +32,7 @@ pub fn create_post(state: &State<AppState>, form: Form<NewPost>) -> Redirect {
     Redirect::to("/admin/posts")
 }
 
-#[get("/posts/<id>/delete")]
+#[get("/<id>/delete")]
 pub fn delete_post(state: &State<AppState>, id: &str) -> Redirect {
     let db = state.db.lock().unwrap();
     let _ = Post::delete(db.conn(), id);
