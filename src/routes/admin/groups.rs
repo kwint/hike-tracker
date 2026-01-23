@@ -5,57 +5,64 @@ use rocket::form::Form;
 use rocket::http::ContentType;
 use rocket::response::Redirect;
 use rocket::Route;
-use rocket::State;
 use rocket_dyn_templates::{context, Template};
 
-use crate::models::Group;
-use crate::AppState;
+use crate::db::DbConn;
+use crate::models::{Group, NewGroup};
 
 #[derive(FromForm)]
-pub struct NewGroup {
+pub struct NewGroupForm {
     name: String,
 }
 
 #[get("/")]
-pub fn groups(state: &State<AppState>) -> Template {
-    let db = state.db.lock().unwrap();
-    let groups = Group::get_all(db.conn()).unwrap_or_default();
+pub async fn groups(conn: DbConn) -> Template {
+    let groups = conn
+        .run(|c| Group::get_all(c))
+        .await
+        .unwrap_or_default();
     Template::render("admin/groups", context! { groups: groups })
 }
 
 #[post("/", data = "<form>")]
-pub fn create_group(state: &State<AppState>, form: Form<NewGroup>) -> Redirect {
-    let db = state.db.lock().unwrap();
-
-    let group = Group::new(form.name.clone());
-    group.insert(db.conn()).unwrap();
+pub async fn create_group(conn: DbConn, form: Form<NewGroupForm>) -> Redirect {
+    let name = form.name.clone();
+    conn.run(move |c| {
+        let group = NewGroup::new(name);
+        Group::insert(c, group)
+    })
+    .await
+    .ok();
 
     Redirect::to("/admin/groups")
 }
 
 #[get("/<id>/delete")]
-pub fn delete_group(state: &State<AppState>, id: &str) -> Redirect {
-    let db = state.db.lock().unwrap();
-    let _ = Group::delete(db.conn(), id);
+pub async fn delete_group(conn: DbConn, id: String) -> Redirect {
+    conn.run(move |c| Group::delete(c, &id)).await.ok();
     Redirect::to("/admin/groups")
 }
 
 #[get("/<id>/start_timer")]
-pub fn start_group_timer(state: &State<AppState>, id: &str) -> Redirect {
-    let db = state.db.lock().unwrap();
-    let _ = Group::set_start_time(db.conn(), id, Utc::now());
+pub async fn start_group_timer(conn: DbConn, id: String) -> Redirect {
+    let now = Utc::now().naive_utc();
+    conn.run(move |c| Group::set_start_time(c, &id, now))
+        .await
+        .ok();
     Redirect::to("/admin/groups")
 }
 
 #[get("/<id>/stop_timer")]
-pub fn stop_group_timer(state: &State<AppState>, id: &str) -> Redirect {
-    let db = state.db.lock().unwrap();
-    let _ = Group::set_finish_time(db.conn(), id, Utc::now());
+pub async fn stop_group_timer(conn: DbConn, id: String) -> Redirect {
+    let now = Utc::now().naive_utc();
+    conn.run(move |c| Group::set_finish_time(c, &id, now))
+        .await
+        .ok();
     Redirect::to("/admin/groups")
 }
 
 #[get("/<id>/qr")]
-pub fn group_qr(_state: &State<AppState>, id: &str) -> (ContentType, Vec<u8>) {
+pub fn group_qr(id: &str) -> (ContentType, Vec<u8>) {
     let url = format!("/scan/{}", id);
 
     let code = QrCode::new(url.as_bytes()).unwrap();

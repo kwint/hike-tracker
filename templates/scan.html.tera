@@ -14,7 +14,7 @@
                 <option value="">-- Select a post --</option>
                 {% for post in posts %}
                 <option value="{{ post.id }}">
-                    {{ post.order }}. {{ post.name }}
+                    {{ post.post_order }}. {{ post.name }}
                 </option>
                 {% endfor %}
             </select>

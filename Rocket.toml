@@ -5,3 +5,7 @@ template_dir = "templates"
 
 [default.limits]
 forms = "64 kB"
+
+[default.databases.sqlite_db]
+url = "hike_tracker.db"
+pool_size = 10

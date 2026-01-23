@@ -3,11 +3,10 @@ use rocket::form::Form;
 use rocket::http::Status;
 use rocket::response::Redirect;
 use rocket::Route;
-use rocket::State;
 use rocket_dyn_templates::{context, Template};
 
-use crate::models::{Group, Post, Scan};
-use crate::AppState;
+use crate::db::DbConn;
+use crate::models::{Group, NewScan, Post, Scan};
 
 #[derive(FromForm)]
 pub struct ScanForm {
@@ -15,16 +14,25 @@ pub struct ScanForm {
 }
 
 #[get("/<group_id>")]
-pub fn scan_page(state: &State<AppState>, group_id: &str) -> Result<Template, Status> {
-    let db = state.db.lock().unwrap();
+pub async fn scan_page(conn: DbConn, group_id: String) -> Result<Template, Status> {
+    let gid = group_id.clone();
+    let group = conn
+        .run(move |c| Group::get_by_id(c, &gid))
+        .await
+        .ok()
+        .flatten();
 
-    let group = match Group::get_by_id(db.conn(), group_id).ok().flatten() {
+    let group = match group {
         Some(g) => g,
         None => return Err(Status::BadRequest),
     };
 
-    let posts = Post::get_all(db.conn()).unwrap_or_default();
-    let scans = Scan::get_by_group(db.conn(), group_id).unwrap_or_default();
+    let gid = group_id.clone();
+    let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
+    let scans = conn
+        .run(move |c| Scan::get_by_group(c, &gid))
+        .await
+        .unwrap_or_default();
 
     Ok(Template::render(
         "scan",
@@ -37,33 +45,52 @@ pub fn scan_page(state: &State<AppState>, group_id: &str) -> Result<Template, St
 }
 
 #[post("/<group_id>", data = "<form>")]
-pub fn record_scan(state: &State<AppState>, group_id: &str, form: Form<ScanForm>) -> Redirect {
-    let db = state.db.lock().unwrap();
+pub async fn record_scan(conn: DbConn, group_id: String, form: Form<ScanForm>) -> Redirect {
+    let gid = group_id.clone();
 
     // Verify group exists
-    if Group::get_by_id(db.conn(), group_id)
+    let group_exists = conn
+        .run(move |c| Group::get_by_id(c, &gid))
+        .await
         .ok()
         .flatten()
-        .is_none()
-    {
+        .is_some();
+
+    if !group_exists {
         return Redirect::to("/");
     }
 
-    // Regular post: toggle arrival/departure
-    match Scan::get_by_group_and_post(db.conn(), group_id, &form.post_id)
+    let gid = group_id.clone();
+    let post_id = form.post_id.clone();
+
+    // Check if scan exists
+    let existing_scan = conn
+        .run(move |c| Scan::get_by_group_and_post(c, &gid, &post_id))
+        .await
         .ok()
-        .flatten()
-    {
+        .flatten();
+
+    match existing_scan {
         Some(scan) => {
             // Already arrived, record departure
             if scan.departure_time.is_none() {
-                let _ = Scan::set_departure_time(db.conn(), &scan.id, Utc::now());
+                let scan_id = scan.id.clone();
+                let now = Utc::now().naive_utc();
+                conn.run(move |c| Scan::set_departure_time(c, &scan_id, now))
+                    .await
+                    .ok();
             }
         }
         None => {
             // First scan, record arrival
-            let scan = Scan::new(group_id.to_string(), form.post_id.clone());
-            let _ = scan.insert(db.conn());
+            let gid = group_id.clone();
+            let post_id = form.post_id.clone();
+            conn.run(move |c| {
+                let scan = NewScan::new(gid, post_id);
+                Scan::insert(c, scan)
+            })
+            .await
+            .ok();
         }
     }
 

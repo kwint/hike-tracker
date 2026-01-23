@@ -10,16 +10,24 @@
     <table>
         <tr>
             <th>Start Time</th>
-            <td>{{ detail.group.start_time | date(format="%Y-%m-%d %H:%M") }}</td>
+            <td>
+                {% if detail.group.start_time %}
+
+                {{ detail.group.start_time | date(format="%Y-%m-%d %H:%M") }}
+                    {% else %}
+                    -
+                    {% endif %}
+            </td>
+
         </tr>
         <tr>
             <th>Finish Time</th>
             <td>
                 {% if detail.group.finish_time %}
                     {{ detail.group.finish_time | date(format="%Y-%m-%d %H:%M") }}
-                {% else %}
-                    Not finished
-                {% endif %}
+                    {% else %}
+                    -
+                    {% endif %}
             </td>
         </tr>
         <tr>
@@ -65,7 +73,7 @@
         <tbody>
             {% for ps in detail.post_scans %}
             <tr>
-                <td>{{ ps.post.order }}</td>
+                <td>{{ ps.post.post_order }}</td>
                 <td>{{ ps.post.name }}</td>
                 <td>
                     {% if ps.scan %}

@@ -34,7 +34,7 @@
         <tbody>
             {% for post in posts %}
             <tr>
-                <td>{{ post.order }}</td>
+                <td>{{ post.post_order }}</td>
                 <td>{{ post.name }}</td>
                 <td>
                     <a href="/admin/posts/{{ post.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this post?')">Delete</a>

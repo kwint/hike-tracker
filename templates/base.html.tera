@@ -111,14 +111,19 @@
             border-radius: 4px;
             font-size: 0.85rem;
             font-weight: 500;
+            height: 100%; 
         }
         .status-finished {
-            background: #d4edda;
-            color: #155724;
+            background: #279423ff;
+            color: #fff3cd;
         }
         .status-active {
-            background: #fff3cd;
-            color: #856404;
+            background: #044b85ff;
+            color: #fff3cd;
+        }
+        .status-warning {
+            background: #856404;
+            color: #fff3cd;
         }
         .checkbox-label {
             display: flex;

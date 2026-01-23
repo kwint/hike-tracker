@@ -1,50 +1,13 @@
-use rusqlite::{Connection, Result};
+use diesel::sqlite::SqliteConnection;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use rocket_sync_db_pools::database;
 
-pub struct Database {
-    conn: Connection,
-}
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
-impl Database {
-    pub fn new(path: &str) -> Result<Self> {
-        let conn = Connection::open(path)?;
-        let db = Database { conn };
-        db.run_migrations()?;
-        Ok(db)
-    }
+#[database("sqlite_db")]
+pub struct DbConn(SqliteConnection);
 
-    fn run_migrations(&self) -> Result<()> {
-        self.conn.execute_batch(
-            "
-            CREATE TABLE IF NOT EXISTS groups (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                start_time TEXT,
-                finish_time TEXT,
-                created_at TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS posts (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                post_order INTEGER NOT NULL,
-                created_at TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS scans (
-                id TEXT PRIMARY KEY,
-                group_id TEXT NOT NULL,
-                post_id TEXT NOT NULL,
-                arrival_time TEXT NOT NULL,
-                departure_time TEXT,
-                FOREIGN KEY (group_id) REFERENCES groups(id),
-                FOREIGN KEY (post_id) REFERENCES posts(id)
-            );
-            ",
-        )?;
-        Ok(())
-    }
-
-    pub fn conn(&self) -> &Connection {
-        &self.conn
-    }
+pub fn run_migrations(conn: &mut SqliteConnection) {
+    conn.run_pending_migrations(MIGRATIONS)
+        .expect("Failed to run database migrations");
 }

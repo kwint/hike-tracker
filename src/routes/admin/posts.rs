@@ -1,39 +1,40 @@
 use rocket::form::Form;
 use rocket::response::Redirect;
 use rocket::Route;
-use rocket::State;
 use rocket_dyn_templates::{context, Template};
 
-use crate::models::Post;
-use crate::AppState;
+use crate::db::DbConn;
+use crate::models::{NewPost, Post};
 
 #[derive(FromForm)]
-pub struct NewPost {
+pub struct NewPostForm {
     name: String,
     order: i32,
 }
 
 #[get("/")]
-pub fn posts(state: &State<AppState>) -> Template {
-    let db = state.db.lock().unwrap();
-    let posts = Post::get_all(db.conn()).unwrap_or_default();
+pub async fn posts(conn: DbConn) -> Template {
+    let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
     Template::render("admin/posts", context! { posts: posts })
 }
 
 #[post("/", data = "<form>")]
-pub fn create_post(state: &State<AppState>, form: Form<NewPost>) -> Redirect {
-    let db = state.db.lock().unwrap();
-
-    let post = Post::new(form.name.clone(), form.order);
-    post.insert(db.conn()).unwrap();
+pub async fn create_post(conn: DbConn, form: Form<NewPostForm>) -> Redirect {
+    let name = form.name.clone();
+    let order = form.order;
+    conn.run(move |c| {
+        let post = NewPost::new(name, order);
+        Post::insert(c, post)
+    })
+    .await
+    .ok();
 
     Redirect::to("/admin/posts")
 }
 
 #[get("/<id>/delete")]
-pub fn delete_post(state: &State<AppState>, id: &str) -> Redirect {
-    let db = state.db.lock().unwrap();
-    Post::delete(db.conn(), id).unwrap();
+pub async fn delete_post(conn: DbConn, id: String) -> Redirect {
+    conn.run(move |c| Post::delete(c, &id)).await.ok();
     Redirect::to("/admin/posts")
 }
 

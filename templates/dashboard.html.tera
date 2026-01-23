@@ -12,11 +12,13 @@
         <thead>
             <tr>
                 <th>Group</th>
-                <th>Posts Visited</th>
+                <th>Status</th>
+                {% for post in posts %}
+                    <th>{{ post.name }}</th>
+                {% endfor %}
                 <th>Total Time</th>
                 <th>Walking Time</th>
                 <th>Idle Time</th>
-                <th>Status</th>
                 <th>Details</th>
             </tr>
         </thead>
@@ -24,7 +26,29 @@
             {% for gs in group_stats %}
             <tr>
                 <td>{{ gs.group.name }}</td>
-                <td>{{ gs.post_scans | filter(attribute="scan") | length }} / {{ total_posts }}</td>
+                <td>
+                    {% if gs.group.finish_time %}
+                        <span class="status-badge status-finished">Finished</span>
+                    {% elif gs.group.start_time %}
+                        <span class="status-badge status-warning">No started</span>
+                    {% else %}
+                        <span class="status-badge status-active">In progress</span>
+                    {% endif %}
+
+                </td>
+                {% for post_scan in gs.post_scans %} 
+                <td>
+                    {% if post_scan.scan %}
+                        {% if post_scan.scan.departure_time %}
+                            ✅
+                        {% else %}
+                            🏠
+                        {% endif %}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                {% endfor %}
                 <td>
                     {% if gs.total_time %}
                     {{ gs.total_time.0 | date(format="%H:%M") }}
@@ -40,13 +64,6 @@
                     {% endif %}
                 </td>
                 <td>{{ gs.idle_time.0 | date(format="%H:%M") }}</td>
-                <td>
-                    {% if gs.is_finished %}
-                    <span class="status-badge status-finished">Finished</span>
-                    {% else %}
-                    <span class="status-badge status-active">Active</span>
-                    {% endif %}
-                </td>
                 <td>
                     <a href="/dashboard/group/{{ gs.group.id }}" class="btn">View</a>
                 </td>
