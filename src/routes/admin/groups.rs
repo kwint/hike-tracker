@@ -7,44 +7,53 @@ use rocket::response::Redirect;
 use rocket::Route;
 use rocket_dyn_templates::{context, Template};
 
+use crate::auth::Admin;
 use crate::db::DbConn;
 use crate::models::{Group, NewGroup};
 
 #[derive(FromForm)]
 pub struct NewGroupForm {
     name: String,
+    scout_group: String,
+    members: String,
+    phone_number: String,
 }
 
 #[get("/")]
-pub async fn groups(conn: DbConn) -> Template {
+pub async fn groups(_admin: Admin, conn: DbConn) -> Template {
     let groups = conn
         .run(|c| Group::get_all(c))
         .await
         .unwrap_or_default();
-    Template::render("admin/groups", context! { groups: groups })
+    Template::render("admin/groups", context! { groups: groups, is_admin: true })
 }
 
 #[post("/", data = "<form>")]
-pub async fn create_group(conn: DbConn, form: Form<NewGroupForm>) -> Redirect {
+pub async fn create_group(_admin: Admin, conn: DbConn, form: Form<NewGroupForm>) -> Redirect {
     let name = form.name.clone();
-    conn.run(move |c| {
-        let group = NewGroup::new(name);
+    let scout_group = form.scout_group.clone();
+    let members = form.members.clone();
+    let phone_number = form.phone_number.clone();
+    let result = conn.run(move |c| {
+        let group = NewGroup::new(name, scout_group, members, phone_number);
         Group::insert(c, group)
     })
-    .await
-    .ok();
+    .await;
+    if let Err(e) = result {
+        eprintln!("Failed to create group: {}", e);
+    }
 
     Redirect::to("/admin/groups")
 }
 
 #[get("/<id>/delete")]
-pub async fn delete_group(conn: DbConn, id: String) -> Redirect {
+pub async fn delete_group(_admin: Admin, conn: DbConn, id: String) -> Redirect {
     conn.run(move |c| Group::delete(c, &id)).await.ok();
     Redirect::to("/admin/groups")
 }
 
 #[get("/<id>/start_timer")]
-pub async fn start_group_timer(conn: DbConn, id: String) -> Redirect {
+pub async fn start_group_timer(_admin: Admin, conn: DbConn, id: String) -> Redirect {
     let now = Utc::now().naive_utc();
     conn.run(move |c| Group::set_start_time(c, &id, now))
         .await
@@ -53,7 +62,7 @@ pub async fn start_group_timer(conn: DbConn, id: String) -> Redirect {
 }
 
 #[get("/<id>/stop_timer")]
-pub async fn stop_group_timer(conn: DbConn, id: String) -> Redirect {
+pub async fn stop_group_timer(_admin: Admin, conn: DbConn, id: String) -> Redirect {
     let now = Utc::now().naive_utc();
     conn.run(move |c| Group::set_finish_time(c, &id, now))
         .await
@@ -62,7 +71,7 @@ pub async fn stop_group_timer(conn: DbConn, id: String) -> Redirect {
 }
 
 #[get("/<id>/qr")]
-pub fn group_qr(id: &str) -> (ContentType, Vec<u8>) {
+pub fn group_qr(_admin: Admin, id: &str) -> (ContentType, Vec<u8>) {
     let url = format!("/scan/{}", id);
 
     let code = QrCode::new(url.as_bytes()).unwrap();

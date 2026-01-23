@@ -23,6 +23,7 @@
 <div class="card">
     <h2>Existing Posts</h2>
     {% if posts | length > 0 %}
+    <div class="table-wrapper">
     <table>
         <thead>
             <tr>
@@ -43,6 +44,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
     {% else %}
     <p>No posts yet. Add checkpoints above.</p>
     {% endif %}

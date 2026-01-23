@@ -13,6 +13,9 @@ use crate::schema::{groups, posts, scans};
 pub struct Group {
     pub id: String,
     pub name: String,
+    pub scout_group: String,
+    pub members: String,
+    pub phone_number: String,
     pub start_time: Option<NaiveDateTime>,
     pub finish_time: Option<NaiveDateTime>,
     pub created_at: NaiveDateTime,
@@ -23,16 +26,46 @@ pub struct Group {
 pub struct NewGroup {
     pub id: String,
     pub name: String,
+    pub scout_group: String,
+    pub members: String,
+    pub phone_number: String,
     pub start_time: Option<NaiveDateTime>,
     pub finish_time: Option<NaiveDateTime>,
     pub created_at: NaiveDateTime,
 }
 
 impl NewGroup {
-    pub fn new(name: String) -> Self {
+    pub fn new(
+        name: String,
+        scout_group: String,
+        members: String,
+        phone_number: String,
+    ) -> Self {
         NewGroup {
             id: Uuid::new_v4().to_string(),
             name,
+            scout_group,
+            members,
+            phone_number,
+            start_time: None,
+            finish_time: None,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+
+    pub fn new_with_id(
+        id: String,
+        name: String,
+        scout_group: String,
+        members: String,
+        phone_number: String,
+    ) -> Self {
+        NewGroup {
+            id,
+            name,
+            scout_group,
+            members,
+            phone_number,
             start_time: None,
             finish_time: None,
             created_at: chrono::Utc::now().naive_utc(),
@@ -77,6 +110,15 @@ impl Group {
             .execute(conn)
     }
 
+    pub fn clear_start_time(
+        conn: &mut SqliteConnection,
+        group_id: &str,
+    ) -> QueryResult<usize> {
+        diesel::update(groups::table.filter(groups::id.eq(group_id)))
+            .set(groups::start_time.eq(None::<NaiveDateTime>))
+            .execute(conn)
+    }
+
     pub fn set_finish_time(
         conn: &mut SqliteConnection,
         group_id: &str,
@@ -84,6 +126,15 @@ impl Group {
     ) -> QueryResult<usize> {
         diesel::update(groups::table.filter(groups::id.eq(group_id)))
             .set(groups::finish_time.eq(Some(finish_time)))
+            .execute(conn)
+    }
+
+    pub fn clear_finish_time(
+        conn: &mut SqliteConnection,
+        group_id: &str,
+    ) -> QueryResult<usize> {
+        diesel::update(groups::table.filter(groups::id.eq(group_id)))
+            .set(groups::finish_time.eq(None::<NaiveDateTime>))
             .execute(conn)
     }
 }
@@ -131,13 +182,6 @@ impl Post {
         posts::table
             .order(posts::post_order.asc())
             .load::<Post>(conn)
-    }
-
-    pub fn get_by_id(conn: &mut SqliteConnection, post_id: &str) -> QueryResult<Option<Post>> {
-        posts::table
-            .filter(posts::id.eq(post_id))
-            .first::<Post>(conn)
-            .optional()
     }
 
     pub fn delete(conn: &mut SqliteConnection, post_id: &str) -> QueryResult<usize> {
@@ -220,5 +264,25 @@ impl Scan {
         diesel::update(scans::table.filter(scans::id.eq(scan_id)))
             .set(scans::departure_time.eq(Some(departure_time)))
             .execute(conn)
+    }
+
+    pub fn clear_departure_time(conn: &mut SqliteConnection, scan_id: &str) -> QueryResult<usize> {
+        diesel::update(scans::table.filter(scans::id.eq(scan_id)))
+            .set(scans::departure_time.eq(None::<NaiveDateTime>))
+            .execute(conn)
+    }
+
+    pub fn set_arrival_time(
+        conn: &mut SqliteConnection,
+        scan_id: &str,
+        arrival_time: NaiveDateTime,
+    ) -> QueryResult<usize> {
+        diesel::update(scans::table.filter(scans::id.eq(scan_id)))
+            .set(scans::arrival_time.eq(arrival_time))
+            .execute(conn)
+    }
+
+    pub fn delete(conn: &mut SqliteConnection, scan_id: &str) -> QueryResult<usize> {
+        diesel::delete(scans::table.filter(scans::id.eq(scan_id))).execute(conn)
     }
 }

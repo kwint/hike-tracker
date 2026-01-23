@@ -1,0 +1,20 @@
+{% extends "base" %}
+
+{% block title %}Login - Hike Tracker{% endblock %}
+
+{% block content %}
+<h1>Admin Login</h1>
+
+<div class="card">
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="/login" method="post">
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+</div>
+{% endblock %}

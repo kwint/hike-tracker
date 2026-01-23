@@ -4,6 +4,9 @@ diesel::table! {
     groups (id) {
         id -> Text,
         name -> Text,
+        scout_group -> Text,
+        members -> Text,
+        phone_number -> Text,
         start_time -> Nullable<Timestamp>,
         finish_time -> Nullable<Timestamp>,
         created_at -> Timestamp,

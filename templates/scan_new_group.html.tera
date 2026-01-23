@@ -1,0 +1,30 @@
+{% extends "base" %}
+
+{% block title %}Create New Group - Hike Tracker{% endblock %}
+
+{% block content %}
+<h1>Greate New Group</h1>
+
+<div class="card">
+    <h2>Create Group</h2>
+    <form action="/scan/{{ group_id }}/create" method="post">
+        <div>
+            <label for="name">Group Name</label>
+            <input type="text" id="name" name="name" required placeholder="e.g., Team Alpha">
+        </div>
+        <div>
+            <label for="scout_group">Scout Group</label>
+            <input type="text" id="scout_group" name="scout_group" required placeholder="e.g., 1st Springfield">
+        </div>
+        <div>
+            <label for="members">Members</label>
+            <textarea id="members" name="members" placeholder="Enter member names (optional)"></textarea>
+        </div>
+        <div>
+            <label for="phone_number">Phone Number</label>
+            <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 555-1234 (optional)">
+        </div>
+        <button type="submit">Create Group</button>
+    </form>
+</div>
+{% endblock %}

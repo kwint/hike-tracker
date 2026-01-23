@@ -6,65 +6,179 @@
 <h1>Scan: {{ group.name }}</h1>
 
 <div class="card">
-    <h2>Record Arrival / Departure</h2>
-    <form action="/scan/{{ group.id }}" method="post">
-        <div>
-            <label for="post_id">Select Post</label>
-            <select id="post_id" name="post_id" required>
-                <option value="">-- Select a post --</option>
-                {% for post in posts %}
-                <option value="{{ post.id }}">
-                    {{ post.post_order }}. {{ post.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="btn-success">Record Scan</button>
-    </form>
+    <h2>Group Details</h2>
+    <p><strong>Group Name:</strong> {{ group.name }}</p>
+    <p><strong>Scout Group:</strong> {{ group.scout_group }}</p>
+    {% if group.members %}
+    <p><strong>Members:</strong> {{ group.members }}</p>
+    {% endif %}
+    {% if group.phone_number %}
+    <p><strong>Phone:</strong> {{ group.phone_number }}</p>
+    {% endif %}
 </div>
 
 <div class="card">
-    <h2>Current Status</h2>
-    <p><strong>Start Time:</strong> {{ group.start_time }}</p>
+    <h2>Summary</h2>
+    <div class="table-wrapper">
+    <table>
+        <tr>
+            <th>Start Time</th>
+            <td>{% if group.start_time %}{{ group.start_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
+        </tr>
+        <tr>
+            <th>Finish Time</th>
+            <td>{% if group.finish_time %}{{ group.finish_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
+        </tr>
+        <tr>
+            <th>Total Time</th>
+            <td>{% if stats.total_time %}{{ stats.total_time.0 | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
+        </tr>
+        <tr>
+            <th>Walking Time</th>
+            <td>{% if stats.walking_time %}{{ stats.walking_time.0 | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
+        </tr>
+        <tr>
+            <th>Idle Time (at posts)</th>
+            <td>{{ stats.idle_time.0 | date(format="%H:%M:%S") }}</td>
+        </tr>
+    </table>
+    </div>
     {% if group.finish_time %}
-    <p><strong>Finish Time:</strong> {{ group.finish_time }}</p>
     <p class="status-badge status-finished" style="display: inline-block; margin-top: 0.5rem;">Hike Completed!</p>
     {% endif %}
+</div>
 
-    <h3 style="margin-top: 1rem;">Post Visits</h3>
-    {% if scans | length > 0 %}
+<div class="card">
+    <h2>Post-by-Post Breakdown</h2>
+    <div class="table-wrapper">
     <table>
         <thead>
             <tr>
+                <th>Order</th>
                 <th>Post</th>
                 <th>Arrival</th>
                 <th>Departure</th>
+                <th>Time at Post</th>
                 <th>Status</th>
             </tr>
         </thead>
         <tbody>
-            {% for scan in scans %}
+            {% for ps in stats.post_scans %}
             <tr>
+                <td>{{ ps.post.post_order }}</td>
+                <td>{{ ps.post.name }}</td>
+                <td>{% if ps.scan %}{{ ps.scan.arrival_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
+                <td>{% if ps.scan and ps.scan.departure_time %}{{ ps.scan.departure_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
+                <td>{% if ps.idle_time %}{{ ps.idle_time.0 | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
                 <td>
-                    {% for post in posts %}
-                        {% if post.id == scan.post_id %}{{ post.name }}{% endif %}
-                    {% endfor %}
-                </td>
-                <td>{{ scan.arrival_time }}</td>
-                <td>{{ scan.departure_time | default(value="-") }}</td>
-                <td>
-                    {% if scan.departure_time %}
-                    <span class="status-badge status-finished">Left</span>
+                    {% if ps.scan %}
+                        {% if ps.scan.departure_time %}
+                        <span class="status-badge status-finished">Left</span>
+                        {% else %}
+                        <span class="status-badge status-active">At Post</span>
+                        {% endif %}
                     {% else %}
-                    <span class="status-badge status-active">At Post</span>
+                    <span style="color: #999;">Not visited</span>
                     {% endif %}
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <p>No posts visited yet.</p>
+    </div>
+    {% if is_admin %}
+    <p style="margin-top: 1rem;"><a href="/scan/{{ group.id }}/edit" class="btn">Edit Scans</a></p>
     {% endif %}
 </div>
+
+{% if is_admin and next_action %}
+<div class="card">
+    <h2>Next Action</h2>
+    <form id="scan-form" action="/scan/{{ group.id }}" method="post">
+        <input type="hidden" name="action" value="{{ next_action.action_id }}">
+        <button type="button" id="long-press-btn" class="btn-success long-press-btn">
+            <span class="btn-progress"></span>
+            <span class="btn-text">{{ next_action.label }}</span>
+        </button>
+    </form>
+    <p class="hint">Hold button for 2 second to confirm</p>
+</div>
+
+<style>
+    .long-press-btn {
+        position: relative;
+        font-size: 1.2rem;
+        padding: 1rem 2rem;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    .long-press-btn .btn-progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0%;
+        background: rgba(255, 255, 255, 0.3);
+    }
+    .long-press-btn.pressing .btn-progress {
+        width: 100%;
+        transition: width 2s linear;
+    }
+    .long-press-btn .btn-text {
+        position: relative;
+        z-index: 1;
+    }
+    .hint {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #666;
+    }
+</style>
+
+<script>
+(function() {
+    var btn = document.getElementById('long-press-btn');
+    var form = document.getElementById('scan-form');
+    var pressTimer = null;
+
+    function startPress(e) {
+        if (pressTimer) return;
+
+        btn.classList.add('pressing');
+
+        pressTimer = setTimeout(function() {
+            form.submit();
+        }, 2000);
+    }
+
+    function cancelPress(e) {
+        btn.classList.remove('pressing');
+        if (pressTimer) {
+            clearTimeout(pressTimer);
+            pressTimer = null;
+        }
+    }
+
+    // Mouse events
+    btn.addEventListener('mousedown', startPress);
+    btn.addEventListener('mouseup', cancelPress);
+    btn.addEventListener('mouseleave', cancelPress);
+
+    // Touch events
+    btn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        startPress(e);
+    }, { passive: false });
+    btn.addEventListener('touchend', cancelPress);
+    btn.addEventListener('touchcancel', cancelPress);
+})();
+</script>
+{% elif is_admin and group.finish_time %}
+<div class="card">
+    <h2>Hike Complete</h2>
+    <p>This group has finished their hike.</p>
+</div>
+{% endif %}
+
 {% endblock %}

@@ -8,6 +8,7 @@
 <div class="card">
     <h2>All Groups</h2>
     {% if group_stats | length > 0 %}
+    <div class="table-wrapper">
     <table>
         <thead>
             <tr>
@@ -51,26 +52,27 @@
                 {% endfor %}
                 <td>
                     {% if gs.total_time %}
-                    {{ gs.total_time.0 | date(format="%H:%M") }}
+                    {{ gs.total_time.0 | date(format="%H:%M:%S") }}
                     {% else %}
                     -
                     {% endif %}
                 </td>
                 <td>
                     {% if gs.walking_time %}
-                    {{ gs.walking_time.0 | date(format="%H:%M") }}
+                    {{ gs.walking_time.0 | date(format="%H:%M:%S") }}
                     {% else %}
                     -
                     {% endif %}
                 </td>
-                <td>{{ gs.idle_time.0 | date(format="%H:%M") }}</td>
+                <td>{{ gs.idle_time.0 | date(format="%H:%M:%S") }}</td>
                 <td>
-                    <a href="/dashboard/group/{{ gs.group.id }}" class="btn">View</a>
+                    <a href="/scan/{{ gs.group.id }}" class="btn">View</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    </div>
     {% else %}
     <p>No groups yet. <a href="/admin/groups">Create some groups</a> to get started.</p>
     {% endif %}

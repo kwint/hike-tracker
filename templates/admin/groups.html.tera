@@ -12,6 +12,18 @@
             <label for="name">Group Name</label>
             <input type="text" id="name" name="name" required placeholder="e.g., Team Alpha">
         </div>
+        <div>
+            <label for="scout_group">Scout Group</label>
+            <input type="text" id="scout_group" name="scout_group" required placeholder="e.g., 1st Springfield">
+        </div>
+        <div>
+            <label for="members">Members</label>
+            <textarea id="members" name="members" placeholder="Enter member names (optional)"></textarea>
+        </div>
+        <div>
+            <label for="phone_number">Phone Number</label>
+            <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 555-1234 (optional)">
+        </div>
         <button type="submit">Add Group</button>
     </form>
 </div>
@@ -19,10 +31,13 @@
 <div class="card">
     <h2>Existing Groups</h2>
     {% if groups | length > 0 %}
+    <div class="table-wrapper">
     <table>
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Scout Group</th>
+                <th>Phone</th>
                 <th>Start Time</th>
                 <th>Status</th>
                 <th>QR Code</th>
@@ -33,7 +48,9 @@
             {% for group in groups %}
             <tr>
                 <td>{{ group.name }}</td>
-                <td>{{ group.start_time }}</td>
+                <td>{{ group.scout_group }}</td>
+                <td>{{ group.phone_number }}</td>
+                <td>{% if group.start_time %}{{ group.start_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
                 <td>
                     {% if group.finish_time %}
                     <span class="status-badge status-finished">Finished</span>
@@ -45,17 +62,14 @@
                     <a href="/admin/groups/{{ group.id }}/qr" target="_blank" class="btn">View QR</a>
                 </td>
                 <td>
+                    <a href="/scan/{{ group.id }}" class="btn">Details</a>
                     <a href="/admin/groups/{{ group.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this group?')">Delete</a>
-                    {% if not group.start_time %}
-                        <a href="/admin/groups/{{ group.id }}/start_timer" class="btn btn-success" onclick="return confirm('Start this groups timer?')">Start</a>
-                    {% elif not group.finish_time %}
-                        <a href="/admin/groups/{{ group.id }}/stop_timer" class="btn btn-warning" onclick="return confirm('Stop this groups timer?')">Finish</a>
-                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    </div>
     {% else %}
     <p>No groups yet. Add one above.</p>
     {% endif %}

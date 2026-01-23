@@ -1,0 +1,97 @@
+{% extends "base" %}
+
+{% block title %}Edit Scans - {{ group.name }} - Hike Tracker{% endblock %}
+
+{% block content %}
+<h1>Edit Scans: {{ group.name }}</h1>
+
+<div class="card">
+    <h2>Current Scans</h2>
+    {% if scans | length > 0 %}
+    <div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Post</th>
+                <th>Arrival Time</th>
+                <th>Departure Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in scans %}
+            <tr>
+                <form action="/scan/{{ group.id }}/edit/scan/{{ scan.id }}/update" method="post">
+                    <td>
+                        {% for post in posts %}
+                            {% if post.id == scan.post_id %}{{ post.post_order }}. {{ post.name }}{% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <input type="datetime-local" name="arrival_time" value="{{ scan.arrival_time | date(format='%Y-%m-%dT%H:%M') }}" required>
+                    </td>
+                    <td>
+                        <input type="datetime-local" name="departure_time" value="{% if scan.departure_time %}{{ scan.departure_time | date(format='%Y-%m-%dT%H:%M') }}{% endif %}">
+                        <label class="checkbox-label"><input type="checkbox" name="clear_departure" value="1"> Clear</label>
+                    </td>
+                    <td>
+                        <button type="submit" class="btn">Save</button>
+                        <a href="/scan/{{ group.id }}/edit/scan/{{ scan.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this scan?')">Delete</a>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p>No scans recorded yet.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Add Scan</h2>
+    <form action="/scan/{{ group.id }}/edit/scan/add" method="post">
+        <div>
+            <label for="post_id">Post</label>
+            <select id="post_id" name="post_id" required>
+                <option value="">-- Select a post --</option>
+                {% for post in posts %}
+                <option value="{{ post.id }}">{{ post.post_order }}. {{ post.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="arrival_time">Arrival Time</label>
+            <input type="datetime-local" id="arrival_time" name="arrival_time" required>
+        </div>
+        <div>
+            <label for="departure_time">Departure Time (optional)</label>
+            <input type="datetime-local" id="departure_time" name="departure_time">
+        </div>
+        <button type="submit" class="btn-success">Add Scan</button>
+    </form>
+</div>
+
+
+<div class="card">
+    <h2>Start / End time</h2>
+    <form action="/scan/{{ group.id }}/edit/group/update" method="post">
+        <div>
+            <label for="start_time">Start time</label>
+            <input type="datetime-local" name="start_time" value="{% if group.start_time %}{{ group.start_time | date(format='%Y-%m-%dT%H:%M') }}{% endif %}">
+            <label class="checkbox-label"><input type="checkbox" name="clear_start" value="1"> Clear</label>
+        </div>
+        <div>
+            <label for="finish_time">Finish time</label>
+            <input type="datetime-local" name="finish_time" value="{% if group.finish_time %}{{ group.finish_time | date(format='%Y-%m-%dT%H:%M') }}{% endif %}">
+            <label class="checkbox-label"><input type="checkbox" name="clear_finish" value="1"> Clear</label>
+        </div>
+        <button type="submit" class="btn-success">Update</button>
+    </form>
+</div>
+
+<div style="margin-top: 1rem;">
+    <a href="/scan/{{ group.id }}" class="btn">Back to Scan Page</a>
+</div>
+{% endblock %}

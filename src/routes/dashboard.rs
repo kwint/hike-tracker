@@ -1,9 +1,10 @@
 use chrono::{NaiveDateTime, TimeDelta, Utc};
-use rocket::http::Status;
+use rocket::http::CookieJar;
 use rocket::Route;
 use rocket_dyn_templates::{context, Template};
 use serde::Serialize;
 
+use crate::auth;
 use crate::db::DbConn;
 use crate::models::{Group, Post, Scan};
 
@@ -24,7 +25,8 @@ pub struct GroupDetail {
 }
 
 #[get("/")]
-pub async fn dashboard(conn: DbConn) -> Template {
+pub async fn dashboard(cookies: &CookieJar<'_>, conn: DbConn) -> Template {
+    let is_admin = auth::is_admin(cookies);
     let groups = conn.run(|c| Group::get_all(c)).await.unwrap_or_default();
     let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
 
@@ -41,38 +43,8 @@ pub async fn dashboard(conn: DbConn) -> Template {
 
     Template::render(
         "dashboard",
-        context! { group_stats: group_stats, posts: posts},
+        context! { group_stats: group_stats, posts: posts, is_admin: is_admin },
     )
-}
-
-#[get("/group/<id>")]
-pub async fn group_detail_page(conn: DbConn, id: String) -> Result<Template, Status> {
-    let gid = id.clone();
-    let group = conn
-        .run(move |c| Group::get_by_id(c, &gid))
-        .await
-        .ok()
-        .flatten();
-
-    let group = match group {
-        Some(g) => g,
-        None => return Err(Status::BadRequest),
-    };
-
-    let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
-
-    let gid = group.id.clone();
-    let scans = conn
-        .run(move |c| Scan::get_by_group(c, &gid))
-        .await
-        .unwrap_or_default();
-
-    let detail = group_detail(group, &scans, posts);
-
-    Ok(Template::render(
-        "dashboard_detail",
-        context! { detail: detail },
-    ))
 }
 
 fn now_naive() -> NaiveDateTime {
@@ -113,5 +85,5 @@ fn group_detail(group: Group, scans: &[Scan], posts: Vec<Post>) -> GroupDetail {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![dashboard, group_detail_page]
+    routes![dashboard]
 }
