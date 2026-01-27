@@ -72,6 +72,15 @@ fn calculate_stats(group: &Group, posts: &[Post], scans: &[Scan]) -> GroupStats 
     }
 }
 
+fn get_scout_groups() -> Vec<String> {
+    std::env::var("SCOUT_GROUPS")
+        .unwrap_or_default()
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect()
+}
+
 fn get_next_action(group: &Group, posts: &[Post], scans: &[Scan]) -> Option<NextAction> {
     // If group is finished, no next action
     if group.finish_time.is_some() {
@@ -131,9 +140,10 @@ pub async fn scan_page(cookies: &CookieJar<'_>, conn: DbConn, group_id: String) 
     let group = match group {
         Some(g) => g,
         None => {
+            let scout_groups = get_scout_groups();
             return Template::render(
                 "scan_new_group",
-                context! { group_id: group_id, is_admin: is_admin },
+                context! { group_id: group_id, is_admin: is_admin, scout_groups: scout_groups },
             );
         }
     };
@@ -309,6 +319,8 @@ pub async fn edit_page(
         .await
         .unwrap_or_default();
 
+    let scout_groups = get_scout_groups();
+
     Ok(Template::render(
         "scan_edit",
         context! {
@@ -316,6 +328,7 @@ pub async fn edit_page(
             posts: posts,
             scans: scans,
             is_admin: is_admin,
+            scout_groups: scout_groups,
         },
     ))
 }

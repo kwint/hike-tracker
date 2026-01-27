@@ -18,11 +18,16 @@
         </div>
         <div>
             <label for="scout_group">Speltak</label>
-            <input type="text" id="scout_group" name="scout_group" required placeholder="bijv. Scouting Voorbeeld">
+            <select id="scout_group" name="scout_group" required>
+                <option value="">-- Selecteer een speltak --</option>
+                {% for sg in scout_groups %}
+                <option value="{{ sg }}" {% if group.scout_group == sg %}selected{% endif %}>{{ sg }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div>
             <label for="route">Route</label>
-            <input type="text" id="route" name="route" placeholder="bijv. Route A">
+            <input type="text" id="route" name="route" placeholder="A of B">
         </div>
         <div>
             <label for="members">Leden</label>
