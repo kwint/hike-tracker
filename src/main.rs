@@ -8,6 +8,7 @@ mod routes;
 mod schema;
 
 use db::DbConn;
+use rocket::fs::FileServer;
 use rocket_dyn_templates::Template;
 
 #[get("/")]
@@ -43,4 +44,5 @@ fn rocket() -> _ {
         .mount("/dashboard", routes::dashboard::routes())
         .mount("/post", routes::post::routes())
         .mount("/ranking", routes::ranking::routes())
+        .mount("/static", FileServer::from("static"))
 }
