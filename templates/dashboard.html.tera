@@ -1,25 +1,25 @@
 {% extends "base" %}
 
-{% block title %}Dashboard - Hike Tracker{% endblock %}
+{% block title %}Overzicht - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<h1>Overzicht</h1>
 
 <div class="card">
-    <h2>All Groups</h2>
+    <h2>Alle Groepen</h2>
     {% if group_stats | length > 0 %}
     <div class="table-wrapper">
     <table>
         <thead>
             <tr>
-                <th>Group</th>
+                <th>Groep</th>
                 <th>Status</th>
                 {% for post in posts %}
                     <th><a href="/post/{{ post.id }}" style="color: inherit;">{{ post.name }}</a></th>
                 {% endfor %}
-                <th>Total Time</th>
-                <th>Walking Time</th>
-                <th>Idle Time</th>
+                <th>Totale Tijd</th>
+                <th>Looptijd</th>
+                <th>Wachttijd</th>
                 <th>Details</th>
             </tr>
         </thead>
@@ -29,15 +29,15 @@
                 <td>{{ gs.group.name }}</td>
                 <td>
                     {% if gs.group.finish_time %}
-                        <span class="status-badge status-finished">Finished</span>
+                        <span class="status-badge status-finished">Voltooid</span>
                     {% elif gs.group.start_time %}
-                        <span class="status-badge status-warning">No started</span>
+                        <span class="status-badge status-active">Onderweg</span>
                     {% else %}
-                        <span class="status-badge status-active">In progress</span>
+                        <span class="status-badge status-warning">Niet gestart</span>
                     {% endif %}
 
                 </td>
-                {% for post_scan in gs.post_scans %} 
+                {% for post_scan in gs.post_scans %}
                 <td>
                     {% if post_scan.scan %}
                         {% if post_scan.scan.departure_time %}
@@ -66,7 +66,7 @@
                 </td>
                 <td>{{ gs.idle_time.0 | date(format="%H:%M:%S") }}</td>
                 <td>
-                    <a href="/scan/{{ gs.group.id }}" class="btn">View</a>
+                    <a href="/scan/{{ gs.group.id }}" class="btn">Bekijk</a>
                 </td>
             </tr>
             {% endfor %}
@@ -74,7 +74,7 @@
     </table>
     </div>
     {% else %}
-    <p>No groups yet. <a href="/admin/groups">Create some groups</a> to get started.</p>
+    <p>Nog geen groepen. <a href="/admin/groups">Maak groepen aan</a> om te beginnen.</p>
     {% endif %}
 </div>
 {% endblock %}

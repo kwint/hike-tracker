@@ -1,35 +1,35 @@
 {% extends "base" %}
 
-{% block title %}Manage Posts - Hike Tracker{% endblock %}
+{% block title %}Posten Beheren - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Manage Posts</h1>
+<h1>Posten Beheren</h1>
 
 <div class="card">
-    <h2>Add New Post</h2>
+    <h2>Nieuwe Post Toevoegen</h2>
     <form action="/admin/posts" method="post">
         <div>
-            <label for="name">Post Name</label>
-            <input type="text" id="name" name="name" required placeholder="e.g., Checkpoint 1">
+            <label for="name">Postnaam</label>
+            <input type="text" id="name" name="name" required placeholder="bijv. Checkpoint 1">
         </div>
         <div>
-            <label for="order">Order</label>
+            <label for="order">Volgorde</label>
             <input type="number" id="order" name="order" required min="1" placeholder="1">
         </div>
-        <button type="submit">Add Post</button>
+        <button type="submit">Post Toevoegen</button>
     </form>
 </div>
 
 <div class="card">
-    <h2>Existing Posts</h2>
+    <h2>Bestaande Posten</h2>
     {% if posts | length > 0 %}
     <div class="table-wrapper">
     <table>
         <thead>
             <tr>
-                <th>Order</th>
-                <th>Name</th>
-                <th>Actions</th>
+                <th>Volgorde</th>
+                <th>Naam</th>
+                <th>Acties</th>
             </tr>
         </thead>
         <tbody>
@@ -38,8 +38,8 @@
                 <td>{{ post.post_order }}</td>
                 <td>{{ post.name }}</td>
                 <td>
-                    <a href="/post/{{ post.id }}" class="btn">View</a>
-                    <a href="/admin/posts/{{ post.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this post?')">Delete</a>
+                    <a href="/post/{{ post.id }}" class="btn">Bekijken</a>
+                    <a href="/admin/posts/{{ post.id }}/delete" class="btn btn-danger" onclick="return confirm('Deze post verwijderen?')">Verwijderen</a>
                 </td>
             </tr>
             {% endfor %}
@@ -47,7 +47,7 @@
     </table>
     </div>
     {% else %}
-    <p>No posts yet. Add checkpoints above.</p>
+    <p>Nog geen posten. Voeg hierboven checkpoints toe.</p>
     {% endif %}
 </div>
 {% endblock %}

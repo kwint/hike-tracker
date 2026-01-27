@@ -6,59 +6,59 @@
 <h1>Scan: {{ group.name }}</h1>
 
 <div class="card">
-    <h2>Group Details</h2>
-    <p><strong>Group Name:</strong> {{ group.name }}</p>
-    <p><strong>Scout Group:</strong> {{ group.scout_group }}</p>
+    <h2>Groep Details</h2>
+    <p><strong>Groepsnaam:</strong> {{ group.name }}</p>
+    <p><strong>Speltak:</strong> {{ group.scout_group }}</p>
     {% if group.members %}
-    <p><strong>Members:</strong> {{ group.members }}</p>
+    <p><strong>Leden:</strong> {{ group.members }}</p>
     {% endif %}
     {% if group.phone_number %}
-    <p><strong>Phone:</strong> {{ group.phone_number }}</p>
+    <p><strong>Telefoon:</strong> {{ group.phone_number }}</p>
     {% endif %}
 </div>
 
 <div class="card">
-    <h2>Summary</h2>
+    <h2>Samenvatting</h2>
     <div class="table-wrapper">
     <table>
         <tr>
-            <th>Start Time</th>
+            <th>Starttijd</th>
             <td>{% if group.start_time %}{{ group.start_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
         </tr>
         <tr>
-            <th>Finish Time</th>
+            <th>Eindtijd</th>
             <td>{% if group.finish_time %}{{ group.finish_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
         </tr>
         <tr>
-            <th>Total Time</th>
+            <th>Totale Tijd</th>
             <td>{% if stats.total_time %}{{ stats.total_time.0 | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
         </tr>
         <tr>
-            <th>Walking Time</th>
+            <th>Looptijd</th>
             <td>{% if stats.walking_time %}{{ stats.walking_time.0 | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
         </tr>
         <tr>
-            <th>Idle Time (at posts)</th>
+            <th>Wachttijd (op posten)</th>
             <td>{{ stats.idle_time.0 | date(format="%H:%M:%S") }}</td>
         </tr>
     </table>
     </div>
     {% if group.finish_time %}
-    <p class="status-badge status-finished" style="display: inline-block; margin-top: 0.5rem;">Hike Completed!</p>
+    <p class="status-badge status-finished" style="display: inline-block; margin-top: 0.5rem;">Tocht Voltooid!</p>
     {% endif %}
 </div>
 
 <div class="card">
-    <h2>Post-by-Post Breakdown</h2>
+    <h2>Overzicht per Post</h2>
     <div class="table-wrapper">
     <table>
         <thead>
             <tr>
-                <th>Order</th>
+                <th>Volgorde</th>
                 <th>Post</th>
-                <th>Arrival</th>
-                <th>Departure</th>
-                <th>Time at Post</th>
+                <th>Aankomst</th>
+                <th>Vertrek</th>
+                <th>Tijd op Post</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -73,12 +73,12 @@
                 <td>
                     {% if ps.scan %}
                         {% if ps.scan.departure_time %}
-                        <span class="status-badge status-finished">Left</span>
+                        <span class="status-badge status-finished">Vertrokken</span>
                         {% else %}
-                        <span class="status-badge status-active">At Post</span>
+                        <span class="status-badge status-active">Op Post</span>
                         {% endif %}
                     {% else %}
-                    <span style="color: #999;">Not visited</span>
+                    <span style="color: #999;">Niet bezocht</span>
                     {% endif %}
                 </td>
             </tr>
@@ -87,13 +87,13 @@
     </table>
     </div>
     {% if is_admin %}
-    <p style="margin-top: 1rem;"><a href="/scan/{{ group.id }}/edit" class="btn">Edit Scans</a></p>
+    <p style="margin-top: 1rem;"><a href="/scan/{{ group.id }}/edit" class="btn">Scans Bewerken</a></p>
     {% endif %}
 </div>
 
 {% if is_admin and next_action %}
 <div class="card">
-    <h2>Next Action</h2>
+    <h2>Volgende Actie</h2>
     <form id="scan-form" action="/scan/{{ group.id }}" method="post">
         <input type="hidden" name="action" value="{{ next_action.action_id }}">
         <button type="button" id="long-press-btn" class="btn-success long-press-btn">
@@ -101,7 +101,7 @@
             <span class="btn-text">{{ next_action.label }}</span>
         </button>
     </form>
-    <p class="hint">Hold button for 2 second to confirm</p>
+    <p class="hint">Houd de knop 2 seconden ingedrukt om te bevestigen</p>
 </div>
 
 <style>
@@ -176,8 +176,8 @@
 </script>
 {% elif is_admin and group.finish_time %}
 <div class="card">
-    <h2>Hike Complete</h2>
-    <p>This group has finished their hike.</p>
+    <h2>Tocht Voltooid</h2>
+    <p>Deze groep heeft de tocht afgerond.</p>
 </div>
 {% endif %}
 

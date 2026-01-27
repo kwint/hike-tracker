@@ -30,7 +30,7 @@ pub fn login(cookies: &CookieJar<'_>, form: Form<LoginForm>) -> Result<Redirect,
     } else {
         Err(Template::render(
             "login",
-            context! { error: "Invalid password", is_admin: false },
+            context! { error: "Ongeldig wachtwoord", is_admin: false },
         ))
     }
 }

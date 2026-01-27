@@ -1,47 +1,47 @@
 {% extends "base" %}
 
-{% block title %}Manage Groups - Hike Tracker{% endblock %}
+{% block title %}Groepen Beheren - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Manage Groups</h1>
+<h1>Groepen Beheren</h1>
 
 <div class="card">
-    <h2>Add New Group</h2>
+    <h2>Nieuwe Groep Toevoegen</h2>
     <form action="/admin/groups" method="post">
         <div>
-            <label for="name">Group Name</label>
-            <input type="text" id="name" name="name" required placeholder="e.g., Team Alpha">
+            <label for="name">Groepsnaam</label>
+            <input type="text" id="name" name="name" required placeholder="bijv. Team Alpha">
         </div>
         <div>
-            <label for="scout_group">Scout Group</label>
-            <input type="text" id="scout_group" name="scout_group" required placeholder="e.g., 1st Springfield">
+            <label for="scout_group">Speltak</label>
+            <input type="text" id="scout_group" name="scout_group" required placeholder="bijv. Scouting Voorbeeld">
         </div>
         <div>
-            <label for="members">Members</label>
-            <textarea id="members" name="members" placeholder="Enter member names (optional)"></textarea>
+            <label for="members">Leden</label>
+            <textarea id="members" name="members" placeholder="Voer namen van leden in (optioneel)"></textarea>
         </div>
         <div>
-            <label for="phone_number">Phone Number</label>
-            <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 555-1234 (optional)">
+            <label for="phone_number">Telefoonnummer</label>
+            <input type="tel" id="phone_number" name="phone_number" placeholder="bijv. 06-12345678 (optioneel)">
         </div>
-        <button type="submit">Add Group</button>
+        <button type="submit">Groep Toevoegen</button>
     </form>
 </div>
 
 <div class="card">
-    <h2>Existing Groups</h2>
+    <h2>Bestaande Groepen</h2>
     {% if groups | length > 0 %}
     <div class="table-wrapper">
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Scout Group</th>
-                <th>Phone</th>
-                <th>Start Time</th>
+                <th>Naam</th>
+                <th>Speltak</th>
+                <th>Telefoon</th>
+                <th>Starttijd</th>
                 <th>Status</th>
                 <th>QR Code</th>
-                <th>Actions</th>
+                <th>Acties</th>
             </tr>
         </thead>
         <tbody>
@@ -53,17 +53,17 @@
                 <td>{% if group.start_time %}{{ group.start_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
                 <td>
                     {% if group.finish_time %}
-                    <span class="status-badge status-finished">Finished</span>
+                    <span class="status-badge status-finished">Voltooid</span>
                     {% else %}
-                    <span class="status-badge status-active">Active</span>
+                    <span class="status-badge status-active">Actief</span>
                     {% endif %}
                 </td>
                 <td>
-                    <a href="/admin/groups/{{ group.id }}/qr" target="_blank" class="btn">View QR</a>
+                    <a href="/admin/groups/{{ group.id }}/qr" target="_blank" class="btn">QR Bekijken</a>
                 </td>
                 <td>
                     <a href="/scan/{{ group.id }}" class="btn">Details</a>
-                    <a href="/admin/groups/{{ group.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this group?')">Delete</a>
+                    <a href="/admin/groups/{{ group.id }}/delete" class="btn btn-danger" onclick="return confirm('Deze groep verwijderen?')">Verwijderen</a>
                 </td>
             </tr>
             {% endfor %}
@@ -71,7 +71,7 @@
     </table>
     </div>
     {% else %}
-    <p>No groups yet. Add one above.</p>
+    <p>Nog geen groepen. Voeg er hierboven een toe.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -1,30 +1,30 @@
 {% extends "base" %}
 
-{% block title %}Create New Group - Hike Tracker{% endblock %}
+{% block title %}Nieuwe Groep Aanmaken - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Greate New Group</h1>
+<h1>Nieuwe Groep Aanmaken</h1>
 
 <div class="card">
-    <h2>Create Group</h2>
+    <h2>Groep Aanmaken</h2>
     <form action="/scan/{{ group_id }}/create" method="post">
         <div>
-            <label for="name">Group Name</label>
-            <input type="text" id="name" name="name" required placeholder="e.g., Team Alpha">
+            <label for="name">Groepsnaam</label>
+            <input type="text" id="name" name="name" required placeholder="bijv. Team Alpha">
         </div>
         <div>
-            <label for="scout_group">Scout Group</label>
-            <input type="text" id="scout_group" name="scout_group" required placeholder="e.g., 1st Springfield">
+            <label for="scout_group">Speltak</label>
+            <input type="text" id="scout_group" name="scout_group" required placeholder="bijv. Scouting Voorbeeld">
         </div>
         <div>
-            <label for="members">Members</label>
-            <textarea id="members" name="members" placeholder="Enter member names (optional)"></textarea>
+            <label for="members">Leden</label>
+            <textarea id="members" name="members" placeholder="Voer namen van leden in (optioneel)"></textarea>
         </div>
         <div>
-            <label for="phone_number">Phone Number</label>
-            <input type="tel" id="phone_number" name="phone_number" placeholder="e.g., 555-1234 (optional)">
+            <label for="phone_number">Telefoonnummer</label>
+            <input type="tel" id="phone_number" name="phone_number" placeholder="bijv. 06-12345678 (optioneel)">
         </div>
-        <button type="submit">Create Group</button>
+        <button type="submit">Groep Aanmaken</button>
     </form>
 </div>
 {% endblock %}

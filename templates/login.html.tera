@@ -1,9 +1,9 @@
 {% extends "base" %}
 
-{% block title %}Login - Hike Tracker{% endblock %}
+{% block title %}Inloggen - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Admin Login</h1>
+<h1>Admin Inloggen</h1>
 
 <div class="card">
     {% if error %}
@@ -11,10 +11,10 @@
     {% endif %}
     <form action="/login" method="post">
         <div>
-            <label for="password">Password</label>
+            <label for="password">Wachtwoord</label>
             <input type="password" id="password" name="password" required>
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">Inloggen</button>
     </form>
 </div>
 {% endblock %}

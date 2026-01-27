@@ -1,21 +1,21 @@
 {% extends "base" %}
 
-{% block title %}Edit Scans - {{ group.name }} - Hike Tracker{% endblock %}
+{% block title %}Scans Bewerken - {{ group.name }} - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Edit Scans: {{ group.name }}</h1>
+<h1>Scans Bewerken: {{ group.name }}</h1>
 
 <div class="card">
-    <h2>Current Scans</h2>
+    <h2>Huidige Scans</h2>
     {% if scans | length > 0 %}
     <div class="table-wrapper">
     <table>
         <thead>
             <tr>
                 <th>Post</th>
-                <th>Arrival Time</th>
-                <th>Departure Time</th>
-                <th>Actions</th>
+                <th>Aankomsttijd</th>
+                <th>Vertrektijd</th>
+                <th>Acties</th>
             </tr>
         </thead>
         <tbody>
@@ -32,11 +32,11 @@
                     </td>
                     <td>
                         <input type="datetime-local" name="departure_time" value="{% if scan.departure_time %}{{ scan.departure_time | date(format='%Y-%m-%dT%H:%M') }}{% endif %}">
-                        <label class="checkbox-label"><input type="checkbox" name="clear_departure" value="1"> Clear</label>
+                        <label class="checkbox-label"><input type="checkbox" name="clear_departure" value="1"> Wissen</label>
                     </td>
                     <td>
-                        <button type="submit" class="btn">Save</button>
-                        <a href="/scan/{{ group.id }}/edit/scan/{{ scan.id }}/delete" class="btn btn-danger" onclick="return confirm('Delete this scan?')">Delete</a>
+                        <button type="submit" class="btn">Opslaan</button>
+                        <a href="/scan/{{ group.id }}/edit/scan/{{ scan.id }}/delete" class="btn btn-danger" onclick="return confirm('Deze scan verwijderen?')">Verwijderen</a>
                     </td>
                 </form>
             </tr>
@@ -45,53 +45,53 @@
     </table>
     </div>
     {% else %}
-    <p>No scans recorded yet.</p>
+    <p>Nog geen scans geregistreerd.</p>
     {% endif %}
 </div>
 
 <div class="card">
-    <h2>Add Scan</h2>
+    <h2>Scan Toevoegen</h2>
     <form action="/scan/{{ group.id }}/edit/scan/add" method="post">
         <div>
             <label for="post_id">Post</label>
             <select id="post_id" name="post_id" required>
-                <option value="">-- Select a post --</option>
+                <option value="">-- Selecteer een post --</option>
                 {% for post in posts %}
                 <option value="{{ post.id }}">{{ post.post_order }}. {{ post.name }}</option>
                 {% endfor %}
             </select>
         </div>
         <div>
-            <label for="arrival_time">Arrival Time</label>
+            <label for="arrival_time">Aankomsttijd</label>
             <input type="datetime-local" id="arrival_time" name="arrival_time" required>
         </div>
         <div>
-            <label for="departure_time">Departure Time (optional)</label>
+            <label for="departure_time">Vertrektijd (optioneel)</label>
             <input type="datetime-local" id="departure_time" name="departure_time">
         </div>
-        <button type="submit" class="btn-success">Add Scan</button>
+        <button type="submit" class="btn-success">Scan Toevoegen</button>
     </form>
 </div>
 
 
 <div class="card">
-    <h2>Start / End time</h2>
+    <h2>Start- / Eindtijd</h2>
     <form action="/scan/{{ group.id }}/edit/group/update" method="post">
         <div>
-            <label for="start_time">Start time</label>
+            <label for="start_time">Starttijd</label>
             <input type="datetime-local" name="start_time" value="{% if group.start_time %}{{ group.start_time | date(format='%Y-%m-%dT%H:%M') }}{% endif %}">
-            <label class="checkbox-label"><input type="checkbox" name="clear_start" value="1"> Clear</label>
+            <label class="checkbox-label"><input type="checkbox" name="clear_start" value="1"> Wissen</label>
         </div>
         <div>
-            <label for="finish_time">Finish time</label>
+            <label for="finish_time">Eindtijd</label>
             <input type="datetime-local" name="finish_time" value="{% if group.finish_time %}{{ group.finish_time | date(format='%Y-%m-%dT%H:%M') }}{% endif %}">
-            <label class="checkbox-label"><input type="checkbox" name="clear_finish" value="1"> Clear</label>
+            <label class="checkbox-label"><input type="checkbox" name="clear_finish" value="1"> Wissen</label>
         </div>
-        <button type="submit" class="btn-success">Update</button>
+        <button type="submit" class="btn-success">Bijwerken</button>
     </form>
 </div>
 
 <div style="margin-top: 1rem;">
-    <a href="/scan/{{ group.id }}" class="btn">Back to Scan Page</a>
+    <a href="/scan/{{ group.id }}" class="btn">Terug naar Scanpagina</a>
 </div>
 {% endblock %}
