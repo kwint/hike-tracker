@@ -26,7 +26,7 @@
         <tbody>
             {% for gs in group_stats %}
             <tr>
-                <td>{{ gs.group.name }}</td>
+                <td>{{ gs.group.scout_group }}: {{gs.group.name }}</td>
                 <td>
                     {% if gs.group.finish_time %}
                         <span class="status-badge status-finished">Voltooid</span>
