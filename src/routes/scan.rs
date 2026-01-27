@@ -94,14 +94,14 @@ fn get_next_action(group: &Group, posts: &[Post], scans: &[Scan]) -> Option<Next
                 // No scan for this post, next action is arrive
                 return Some(NextAction {
                     action_id: format!("ARRIVE_{}", post.id),
-                    label: format!("Aankomst bij {} {}", post.post_order, post.name),
+                    label: format!("Aankomst bij Post {}: {}", post.post_order, post.name),
                 });
             }
             Some(s) if s.departure_time.is_none() => {
                 // At this post, next action is leave
                 return Some(NextAction {
                     action_id: format!("LEAVE_{}", post.id),
-                    label: format!("Vertrek van {} {}", post.post_order, post.name),
+                    label: format!("Vertrek van Post {}: {}", post.post_order, post.name),
                 });
             }
             Some(_) => {

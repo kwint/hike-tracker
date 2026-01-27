@@ -3,10 +3,9 @@
 {% block title %}Scan - {{ group.name }} - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Scan: {{ group.name }}</h1>
+<h1>{{ group.scout_group }}: {{ group.name }}</h1>
 
 <div class="card">
-    <h2>Groep Details</h2>
     <p><strong>Groepsnaam:</strong> {{ group.name }}</p>
     <p><strong>Speltak:</strong> {{ group.scout_group }}</p>
     {% if group.members %}
@@ -18,7 +17,6 @@
 </div>
 
 <div class="card">
-    <h2>Samenvatting</h2>
     <div class="table-wrapper">
     <table>
         <tr>
@@ -123,7 +121,7 @@
     }
     .long-press-btn.pressing .btn-progress {
         width: 100%;
-        transition: width 2s linear;
+        transition: width 1s linear;
     }
     .long-press-btn .btn-text {
         position: relative;
