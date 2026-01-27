@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/
 
 COPY --from=builder /app/target/release/hike-tracker /usr/local/bin/
 COPY templates /app/templates
+COPY static /app/static
 COPY Rocket.toml /app/
 
 WORKDIR /app
