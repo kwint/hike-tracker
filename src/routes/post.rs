@@ -11,6 +11,7 @@ struct GroupStatus {
     group: Group,
     arrival_time: String,
     departure_time: Option<String>,
+    time_at_post: Option<String>,
 }
 
 #[get("/<post_id>")]
@@ -67,11 +68,20 @@ pub async fn post_overview(
             Some(s) => {
                 let arrival_time = s.arrival_time.format("%H:%M:%S").to_string();
                 let departure_time = s.departure_time.map(|dt| dt.format("%H:%M:%S").to_string());
+                let time_at_post = s.departure_time.map(|dt| {
+                    let duration = dt - s.arrival_time;
+                    let total_secs = duration.num_seconds();
+                    let hours = total_secs / 3600;
+                    let minutes = (total_secs % 3600) / 60;
+                    let seconds = total_secs % 60;
+                    format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
+                });
 
                 let status = GroupStatus {
                     group: group.clone(),
                     arrival_time,
                     departure_time: departure_time.clone(),
+                    time_at_post,
                 };
 
                 if s.departure_time.is_some() {

@@ -92,7 +92,7 @@
                 <td>{{ gs.group.scout_group }}</td>
                 <td>{{ gs.arrival_time }}</td>
                 <td>{{ gs.departure_time }}</td>
-                <td>-</td>
+                <td>{% if gs.time_at_post %}{{ gs.time_at_post }}{% else %}-{% endif %}</td>
             </tr>
             {% endfor %}
         </tbody>
