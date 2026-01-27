@@ -27,8 +27,8 @@ pub struct GroupDetail {
 #[get("/")]
 pub async fn dashboard(cookies: &CookieJar<'_>, conn: DbConn) -> Template {
     let is_admin = auth::is_admin(cookies);
-    let groups = conn.run(|c| Group::get_all(c)).await.unwrap_or_default();
-    let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
+    let groups = conn.run(Group::get_all).await.unwrap_or_default();
+    let posts = conn.run(Post::get_all).await.unwrap_or_default();
 
     let mut group_stats: Vec<GroupDetail> = Vec::new();
 

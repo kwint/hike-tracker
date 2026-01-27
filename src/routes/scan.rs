@@ -139,7 +139,7 @@ pub async fn scan_page(cookies: &CookieJar<'_>, conn: DbConn, group_id: String) 
     };
 
     let gid = group_id.clone();
-    let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
+    let posts = conn.run(Post::get_all).await.unwrap_or_default();
     let scans = conn
         .run(move |c| Scan::get_by_group(c, &gid))
         .await
@@ -296,7 +296,7 @@ pub async fn edit_page(
     };
 
     let gid = group_id.clone();
-    let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
+    let posts = conn.run(Post::get_all).await.unwrap_or_default();
     let scans = conn
         .run(move |c| Scan::get_by_group(c, &gid))
         .await

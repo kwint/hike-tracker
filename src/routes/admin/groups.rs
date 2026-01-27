@@ -12,7 +12,7 @@ use crate::models::{Group};
 
 #[get("/")]
 pub async fn groups(_admin: Admin, conn: DbConn) -> Template {
-    let groups = conn.run(|c| Group::get_all(c)).await.unwrap_or_default();
+    let groups = conn.run(Group::get_all).await.unwrap_or_default();
     Template::render("admin/groups", context! { groups: groups, is_admin: true })
 }
 

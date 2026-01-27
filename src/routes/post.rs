@@ -30,8 +30,8 @@ pub async fn post_overview(
         .run(move |c| Scan::get_by_post(c, &post_id_clone))
         .await
         .unwrap_or_default();
-    let all_groups = conn.run(|c| Group::get_all(c)).await.unwrap_or_default();
-    let all_posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
+    let all_groups = conn.run(Group::get_all).await.unwrap_or_default();
+    let all_posts = conn.run(Post::get_all).await.unwrap_or_default();
 
     // Find this post's order to determine which groups should have arrived
     let post_order = post.post_order;

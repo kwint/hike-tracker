@@ -15,7 +15,7 @@ pub struct NewPostForm {
 
 #[get("/")]
 pub async fn posts(_admin: Admin, conn: DbConn) -> Template {
-    let posts = conn.run(|c| Post::get_all(c)).await.unwrap_or_default();
+    let posts = conn.run(Post::get_all).await.unwrap_or_default();
     Template::render("admin/posts", context! { posts: posts, is_admin: true })
 }
 
