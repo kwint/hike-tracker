@@ -6,30 +6,6 @@
 <h1>Groepen Beheren</h1>
 
 <div class="card">
-    <h2>Nieuwe Groep Toevoegen</h2>
-    <form action="/admin/groups" method="post">
-        <div>
-            <label for="name">Groepsnaam</label>
-            <input type="text" id="name" name="name" required placeholder="bijv. Team Alpha">
-        </div>
-        <div>
-            <label for="scout_group">Speltak</label>
-            <input type="text" id="scout_group" name="scout_group" required placeholder="bijv. Scouting Voorbeeld">
-        </div>
-        <div>
-            <label for="members">Leden</label>
-            <textarea id="members" name="members" placeholder="Voer namen van leden in (optioneel)"></textarea>
-        </div>
-        <div>
-            <label for="phone_number">Telefoonnummer</label>
-            <input type="tel" id="phone_number" name="phone_number" placeholder="bijv. 06-12345678 (optioneel)">
-        </div>
-        <button type="submit">Groep Toevoegen</button>
-    </form>
-</div>
-
-<div class="card">
-    <h2>Bestaande Groepen</h2>
     {% if groups | length > 0 %}
     <div class="table-wrapper">
     <table>
@@ -37,6 +13,7 @@
             <tr>
                 <th>Naam</th>
                 <th>Speltak</th>
+                <th>Deelnemers</th>
                 <th>Telefoon</th>
                 <th>Starttijd</th>
                 <th>Status</th>
@@ -49,6 +26,7 @@
             <tr>
                 <td>{{ group.name }}</td>
                 <td>{{ group.scout_group }}</td>
+                <td>{{ group.members }}</td>
                 <td>{{ group.phone_number }}</td>
                 <td>{% if group.start_time %}{{ group.start_time | date(format="%H:%M:%S") }}{% else %}-{% endif %}</td>
                 <td>
