@@ -101,7 +101,7 @@
             <span class="btn-text">{{ next_action.label }}</span>
         </button>
     </form>
-    <p class="hint">Houd de knop 2 seconden ingedrukt om te bevestigen</p>
+    <p class="hint">Houd de knop 1 seconden ingedrukt om te bevestigen</p>
 </div>
 
 <style>
@@ -149,7 +149,7 @@
 
         pressTimer = setTimeout(function() {
             form.submit();
-        }, 2000);
+        }, 1000);
     }
 
     function cancelPress(e) {
