@@ -15,12 +15,18 @@
                 <th>Groep</th>
                 <th>Status</th>
                 {% for post in posts %}
+                {% if is_admin %}
                     <th><a href="/post/{{ post.id }}" style="color: inherit;">Post {{ post.post_order }}</a></th>
-                {% endfor %}
+                {% else %}
+                    <th>Post {{ post.post_order }}</th>
+                {% endif %}
+                    {% endfor %}
                 <th>Totale Tijd</th>
                 <th>Looptijd</th>
                 <th>Wachttijd</th>
-                <th>Details</th>
+                {% if is_admin %}
+                    <th>Details</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -65,16 +71,18 @@
                     {% endif %}
                 </td>
                 <td>{{ gs.idle_time.0 | date(format="%H:%M:%S") }}</td>
-                <td>
-                    <a href="/scan/{{ gs.group.id }}" class="btn">Bekijk</a>
-                </td>
+                {% if is_admin %}
+                    <td>
+                        <a href="/scan/{{ gs.group.id }}" class="btn">Bekijk</a>
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
     </div>
     {% else %}
-    <p>Nog geen groepen. <a href="/admin/groups">Maak groepen aan</a> om te beginnen.</p>
+    <p>Nog geen groepen. </p>
     {% endif %}
 </div>
 {% endblock %}
