@@ -65,6 +65,7 @@
         </thead>
         <tbody>
             {% for ps in stats.post_scans %}
+            {% if is_admin or ps.scan %}
             <tr>
                 <td>{{ ps.post.post_order }}</td>
                 <td>{{ ps.post.name }}</td>
@@ -83,6 +84,7 @@
                     {% endif %}
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
