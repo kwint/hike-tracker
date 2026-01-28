@@ -153,77 +153,7 @@
 {% endif %}
 
 {% if (is_admin and next_action) or (is_post_holder and holder_post_id and group.start_time and not group.finish_time) %}
-<style>
-    .long-press-btn {
-        position: relative;
-        font-size: 1.2rem;
-        padding: 1rem 2rem;
-        overflow: hidden;
-        user-select: none;
-        -webkit-user-select: none;
-    }
-    .long-press-btn .btn-progress {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 0%;
-        background: rgba(255, 255, 255, 0.3);
-    }
-    .long-press-btn.pressing .btn-progress {
-        width: 100%;
-        transition: width 1s linear;
-    }
-    .long-press-btn .btn-text {
-        position: relative;
-        z-index: 1;
-    }
-    .hint {
-        margin-top: 0.5rem;
-        font-size: 0.85rem;
-        color: #666;
-    }
-</style>
-
-<script>
-(function() {
-    var btn = document.getElementById('long-press-btn');
-    var form = document.getElementById('scan-form');
-    if (!btn || !form) return;
-    var pressTimer = null;
-
-    function startPress(e) {
-        if (pressTimer) return;
-
-        btn.classList.add('pressing');
-
-        pressTimer = setTimeout(function() {
-            form.submit();
-        }, 1000);
-    }
-
-    function cancelPress(e) {
-        btn.classList.remove('pressing');
-        if (pressTimer) {
-            clearTimeout(pressTimer);
-            pressTimer = null;
-        }
-    }
-
-    // Mouse events
-    btn.addEventListener('mousedown', startPress);
-    btn.addEventListener('mouseup', cancelPress);
-    btn.addEventListener('mouseleave', cancelPress);
-
-    // Touch events
-    btn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        startPress(e);
-    }, { passive: false });
-    btn.addEventListener('touchend', cancelPress);
-    btn.addEventListener('touchcancel', cancelPress);
-})();
-</script>
+<script src="/static/long-press.js"></script>
 {% endif %}
 
 {% endblock %}

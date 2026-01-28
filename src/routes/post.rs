@@ -2,7 +2,7 @@ use rocket::Route;
 use rocket_dyn_templates::{context, Template};
 use serde::Serialize;
 
-use crate::auth::{get_current_auth, is_admin, AuthSession};
+use crate::auth::{get_auth_context, is_admin};
 use crate::db::DbConn;
 use crate::models::{Group, Post, Scan};
 
@@ -88,15 +88,12 @@ pub async fn post_overview(
     }
 
     // Check if current user is the post holder for this post
-    let current_auth = get_current_auth(cookies);
+    let auth_ctx = get_auth_context(cookies);
     let is_post_holder = matches!(
-        &current_auth,
-        Some(AuthSession::PostHolder { post_id: ref pid }) if pid == &post_id
+        auth_ctx.holder_post_id.as_ref(),
+        Some(pid) if pid == &post_id
     );
-    let holder_post_id = match &current_auth {
-        Some(AuthSession::PostHolder { post_id: pid }) => Some(pid.clone()),
-        _ => None,
-    };
+    let holder_post_id = auth_ctx.holder_post_id;
 
     Some(Template::render(
         "post_overview",

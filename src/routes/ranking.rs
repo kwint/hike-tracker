@@ -1,4 +1,3 @@
-use chrono::TimeDelta;
 use rocket::Route;
 use rocket_dyn_templates::{context, Template};
 use serde::Serialize;
@@ -6,6 +5,7 @@ use serde::Serialize;
 use crate::auth::Admin;
 use crate::db::DbConn;
 use crate::models::{Group, Post, Scan};
+use crate::stats::{calculate_group_stats, format_duration};
 
 #[derive(Serialize)]
 pub struct RankedGroup {
@@ -19,14 +19,6 @@ pub struct RankedGroup {
     pub posts_visited: usize,
     pub total_posts: usize,
     pub visited_all_posts: bool,
-}
-
-fn format_duration(delta: TimeDelta) -> String {
-    let total_secs = delta.num_seconds();
-    let hours = total_secs / 3600;
-    let minutes = (total_secs % 3600) / 60;
-    let seconds = total_secs % 60;
-    format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
 }
 
 #[get("/?<sort>")]
@@ -54,24 +46,10 @@ pub async fn ranking(_admin: Admin, conn: DbConn, sort: Option<String>) -> Templ
         let posts_visited = scans.len();
         let visited_all_posts = posts_visited >= total_posts;
 
-        // Calculate idle time (time spent at posts)
-        let idle_time: TimeDelta = posts
-            .iter()
-            .filter_map(|post| {
-                scans
-                    .iter()
-                    .find(|s| s.post_id == post.id)
-                    .and_then(|s| s.departure_time.map(|dt| dt - s.arrival_time))
-            })
-            .sum();
-
-        // Calculate total time
-        let total_time = group
-            .start_time
-            .and_then(|start| group.finish_time.map(|finish| finish - start));
-
-        // Calculate walking time
-        let walking_time = total_time.map(|t| t - idle_time);
+        let stats = calculate_group_stats(&group, &scans, posts.clone());
+        let total_time = stats.total_time;
+        let idle_time = stats.idle_time;
+        let walking_time = stats.walking_time;
 
         ranked_groups.push(RankedGroup {
             rank: 0, // Will be set after sorting

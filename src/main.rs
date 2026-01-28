@@ -6,6 +6,7 @@ mod db;
 mod models;
 mod routes;
 mod schema;
+mod stats;
 
 use db::DbConn;
 use rocket::fs::FileServer;
@@ -41,6 +42,7 @@ fn rocket() -> _ {
         .mount("/admin/posts", routes::admin::posts::routes())
         .mount("/admin/groups", routes::admin::groups::routes())
         .mount("/scan", routes::scan::routes())
+        .mount("/scan", routes::scan::edit::routes())
         .mount("/dashboard", routes::dashboard::routes())
         .mount("/post", routes::post::routes())
         .mount("/ranking", routes::ranking::routes())

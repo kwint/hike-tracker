@@ -87,3 +87,25 @@ pub fn is_admin(cookies: &CookieJar<'_>) -> bool {
 pub fn get_current_auth(cookies: &CookieJar<'_>) -> Option<AuthSession> {
     get_auth_session(cookies)
 }
+
+pub struct AuthContext {
+    pub is_admin: bool,
+    pub is_post_holder: bool,
+    pub holder_post_id: Option<String>,
+}
+
+pub fn get_auth_context(cookies: &CookieJar<'_>) -> AuthContext {
+    let current_auth = get_auth_session(cookies);
+    let is_admin = matches!(&current_auth, Some(AuthSession::Admin));
+    let holder_post_id = match &current_auth {
+        Some(AuthSession::PostHolder { post_id }) => Some(post_id.clone()),
+        _ => None,
+    };
+    let is_post_holder = holder_post_id.is_some();
+
+    AuthContext {
+        is_admin,
+        is_post_holder,
+        holder_post_id,
+    }
+}

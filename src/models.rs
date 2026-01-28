@@ -307,6 +307,13 @@ impl Scan {
             .execute(conn)
     }
 
+    pub fn get_by_id(conn: &mut SqliteConnection, scan_id: &str) -> QueryResult<Option<Scan>> {
+        scans::table
+            .filter(scans::id.eq(scan_id))
+            .first::<Scan>(conn)
+            .optional()
+    }
+
     pub fn get_by_group_and_post(
         conn: &mut SqliteConnection,
         group_id: &str,
