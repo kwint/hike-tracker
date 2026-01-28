@@ -1,43 +1,50 @@
 {% extends "base" %}
 
-{% block title %}Nieuwe Groep Aanmaken - Hike Tracker{% endblock %}
+{% block title %}{% if is_existing %}Groep Bewerken{% else %}Nieuwe Groep Aanmaken{% endif %} - Hike Tracker{% endblock %}
 
 {% block content %}
-<h1>Nieuwe Groep Aanmaken</h1>
+<h1>{% if is_existing %}Groep Bewerken{% else %}Nieuwe Groep Aanmaken{% endif %}</h1>
 
 <div class="card">
-    <h2>Groep Aanmaken</h2>
-    <form action="/scan/{{ group_id }}/create" method="post">
+    <h2>{% if is_existing %}Groep Gegevens{% else %}Groep Aanmaken{% endif %}</h2>
+    <form action="{% if is_existing %}/scan/{{ group_id }}/edit/group/details{% else %}/scan/{{ group_id }}/create{% endif %}" method="post">
         <div>
             <label for="group_number">Groepsnummer</label>
-            <input type="number" id="group_number" name="group_number" required value="0" min="0">
+            <input type="number" id="group_number" name="group_number" required value="{% if group %}{{ group.group_number }}{% else %}0{% endif %}" min="0">
         </div>
         <div>
             <label for="name">Groepsnaam</label>
-            <input type="text" id="name" name="name" required placeholder="bijv. Team Alpha">
+            <input type="text" id="name" name="name" required placeholder="bijv. Team Alpha" value="{% if group %}{{ group.name }}{% endif %}">
         </div>
         <div>
             <label for="scout_group">Speltak</label>
             <select id="scout_group" name="scout_group" required>
                 <option value="">-- Selecteer een speltak --</option>
                 {% for sg in scout_groups %}
-                <option value="{{ sg }}" {% if group.scout_group is defined and group.scout_group == sg %}selected{% endif %}>{{ sg }}</option>
+                <option value="{{ sg }}" {% if group and group.scout_group == sg %}selected{% endif %}>{{ sg }}</option>
                 {% endfor %}
             </select>
         </div>
         <div>
             <label for="route">Route</label>
-            <input type="text" id="route" name="route" placeholder="A of B">
+            <input type="text" id="route" name="route" placeholder="A of B" value="{% if group %}{{ group.route }}{% endif %}">
         </div>
         <div>
             <label for="members">Leden</label>
-            <textarea id="members" name="members" placeholder="Voer namen van leden in (optioneel)"></textarea>
+            <textarea id="members" name="members" placeholder="Voer namen van leden in (optioneel)">{% if group %}{{ group.members }}{% endif %}</textarea>
         </div>
         <div>
             <label for="phone_number">Telefoonnummer</label>
-            <input type="tel" id="phone_number" name="phone_number" placeholder="bijv. 06-12345678 (optioneel)">
+            <input type="tel" id="phone_number" name="phone_number" placeholder="bijv. 06-12345678 (optioneel)" value="{% if group %}{{ group.phone_number }}{% endif %}">
         </div>
+        {% if is_existing %}
+        <button type="submit" class="btn-success">Opslaan</button>
+        {% if is_admin %}
+        <button type="submit" name="start_timer" value="1" class="btn-success" style="margin-left: 0.5rem;">Opslaan & Start Timer</button>
+        {% endif %}
+        {% else %}
         <button type="submit">Groep Aanmaken</button>
+        {% endif %}
     </form>
 </div>
 {% endblock %}

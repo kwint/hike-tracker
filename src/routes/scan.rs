@@ -144,16 +144,39 @@ pub async fn scan_page(cookies: &CookieJar<'_>, conn: DbConn, group_id: String) 
         .ok()
         .flatten();
 
+    let scout_groups = get_scout_groups();
+
     let group = match group {
         Some(g) => g,
         None => {
-            let scout_groups = get_scout_groups();
             return Template::render(
                 "scan_new_group",
-                context! { group_id: group_id, is_admin: is_admin, is_post_holder: is_post_holder, holder_post_id: holder_post_id, scout_groups: scout_groups },
+                context! {
+                    group_id: group_id,
+                    is_admin: is_admin,
+                    is_post_holder: is_post_holder,
+                    holder_post_id: holder_post_id,
+                    scout_groups: scout_groups,
+                },
             );
         }
     };
+
+    // If group hasn't started yet, show the edit form (same as new group form but pre-filled)
+    if group.start_time.is_none() {
+        return Template::render(
+            "scan_new_group",
+            context! {
+                group_id: group_id,
+                group: group,
+                is_admin: is_admin,
+                is_post_holder: is_post_holder,
+                holder_post_id: holder_post_id,
+                scout_groups: scout_groups,
+                is_existing: true,
+            },
+        );
+    }
 
     let gid = group_id.clone();
     let posts = conn.run(Post::get_all).await.unwrap_or_default();
@@ -365,6 +388,8 @@ pub async fn edit_page(
         posts
     };
 
+    let is_post_holder = auth.post_id.is_some();
+
     Ok(Template::render(
         "scan_edit",
         context! {
@@ -374,6 +399,7 @@ pub async fn edit_page(
             is_admin: is_admin,
             scout_groups: scout_groups,
             holder_post_id: auth.post_id,
+            is_post_holder: is_post_holder,
         },
     ))
 }
@@ -585,15 +611,36 @@ pub struct UpdateGroupDetailsForm {
     phone_number: String,
     group_number: i32,
     route: String,
+    start_timer: Option<String>,
 }
 
 #[post("/<group_id>/edit/group/details", data = "<form>")]
 pub async fn update_group_details(
-    _admin: Admin, // Group details edits are admin-only
+    cookies: &CookieJar<'_>,
     conn: DbConn,
     group_id: String,
     form: Form<UpdateGroupDetailsForm>,
 ) -> Redirect {
+    let is_admin = auth::is_admin(cookies);
+
+    // Check if group exists and whether it has started
+    let gid = group_id.clone();
+    let group = conn
+        .run(move |c| Group::get_by_id(c, &gid))
+        .await
+        .ok()
+        .flatten();
+
+    let group = match group {
+        Some(g) => g,
+        None => return Redirect::to(format!("/scan/{}", group_id)),
+    };
+
+    // Only admin can edit details of started groups
+    if group.start_time.is_some() && !is_admin {
+        return Redirect::to(format!("/scan/{}", group_id));
+    }
+
     let gid = group_id.clone();
     let name = form.name.clone();
     let scout_group = form.scout_group.clone();
@@ -617,7 +664,23 @@ pub async fn update_group_details(
     .await
     .ok();
 
-    Redirect::to(format!("/scan/{}/edit", group_id))
+    // If start_timer was requested (admin only), start the timer
+    if form.start_timer.is_some() && is_admin {
+        let gid = group_id.clone();
+        let now = Utc::now().naive_utc();
+        conn.run(move |c| Group::set_start_time(c, &gid, now))
+            .await
+            .ok();
+        return Redirect::to(format!("/scan/{}", group_id));
+    }
+
+    // For unstarted groups, redirect back to the scan page (shows the edit form again)
+    // For started groups (admin), redirect to the edit page
+    if group.start_time.is_none() {
+        Redirect::to(format!("/scan/{}", group_id))
+    } else {
+        Redirect::to(format!("/scan/{}/edit", group_id))
+    }
 }
 
 pub fn routes() -> Vec<Route> {
