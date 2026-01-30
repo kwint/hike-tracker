@@ -5,7 +5,9 @@
 {% block content %}
 <h1>Groepen Beheren</h1>
 
+
 <div class="card">
+    <p><a href="/admin/groups/new" class="btn">Groep Toevoegen</a></p>
     {% if groups | length > 0 %}
     <div class="table-wrapper">
     <table>
@@ -49,7 +51,7 @@
     </table>
     </div>
     {% else %}
-    <p>Nog geen groepen. Voeg er hierboven een toe.</p>
+    <p>Nog geen groepen.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -4,6 +4,7 @@ use rocket::http::ContentType;
 use rocket::response::Redirect;
 use rocket::Route;
 use rocket_dyn_templates::{context, Template};
+use uuid::Uuid;
 
 use crate::auth::Admin;
 use crate::db::DbConn;
@@ -19,6 +20,12 @@ pub async fn groups(_admin: Admin, conn: DbConn) -> Template {
 pub async fn delete_group(_admin: Admin, conn: DbConn, id: String) -> Redirect {
     conn.run(move |c| Group::delete(c, &id)).await.ok();
     Redirect::to("/admin/groups")
+}
+
+#[get("/new")]
+pub fn new_group(_admin: Admin) -> Redirect {
+    let short_id = &Uuid::new_v4().to_string()[..8];
+    Redirect::to(format!("/scan/{}", short_id))
 }
 
 #[get("/<id>/qr")]
@@ -44,5 +51,5 @@ pub fn group_qr(_admin: Admin, id: &str) -> (ContentType, Vec<u8>) {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![groups, delete_group, group_qr]
+    routes![groups, new_group, delete_group, group_qr]
 }
