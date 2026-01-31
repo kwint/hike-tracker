@@ -8,7 +8,7 @@ use rocket::Route;
 use rocket_dyn_templates::{context, Template};
 use serde::Serialize;
 
-use crate::auth::{AnyAuth, CurrentPath, get_auth_context};
+use crate::auth::{get_auth_context, AnyAuth, CurrentPath};
 use crate::db::DbConn;
 use crate::models::{Group, NewGroup, NewScan, Post, Scan};
 use crate::stats::calculate_group_stats;
@@ -80,7 +80,12 @@ fn get_next_action(group: &Group, posts: &[Post], scans: &[Scan]) -> Option<Next
 }
 
 #[get("/<group_id>")]
-pub async fn scan_page(cookies: &CookieJar<'_>, conn: DbConn, group_id: String, path: CurrentPath) -> Template {
+pub async fn scan_page(
+    cookies: &CookieJar<'_>,
+    conn: DbConn,
+    group_id: String,
+    path: CurrentPath,
+) -> Template {
     let auth_ctx = get_auth_context(cookies);
     let is_admin = auth_ctx.is_admin;
     let is_post_holder = auth_ctx.is_post_holder;
@@ -181,27 +186,27 @@ pub async fn record_scan(
     // Handle start timer (admin only)
     if action == "__START_TIMER__" {
         if !auth.is_admin {
-            return Redirect::to(format!("/scan/{}", group_id));
+            return Redirect::to(format!("/scan/{group_id}"));
         }
         let gid = group_id.clone();
         let now = Utc::now().naive_utc();
         conn.run(move |c| Group::set_start_time(c, &gid, now))
             .await
             .ok();
-        return Redirect::to(format!("/scan/{}", group_id));
+        return Redirect::to(format!("/scan/{group_id}"));
     }
 
     // Handle stop timer (admin only)
     if action == "__STOP_TIMER__" {
         if !auth.is_admin {
-            return Redirect::to(format!("/scan/{}", group_id));
+            return Redirect::to(format!("/scan/{group_id}"));
         }
         let gid = group_id.clone();
         let now = Utc::now().naive_utc();
         conn.run(move |c| Group::set_finish_time(c, &gid, now))
             .await
             .ok();
-        return Redirect::to(format!("/scan/{}", group_id));
+        return Redirect::to(format!("/scan/{group_id}"));
     }
 
     // Handle arrive at post
@@ -209,7 +214,7 @@ pub async fn record_scan(
         // Post holders can only scan for their assigned post
         if let Some(ref holder_post_id) = auth.post_id {
             if holder_post_id != post_id {
-                return Redirect::to(format!("/scan/{}", group_id));
+                return Redirect::to(format!("/scan/{group_id}"));
             }
         }
         let gid = group_id.clone();
@@ -220,7 +225,7 @@ pub async fn record_scan(
         })
         .await
         .ok();
-        return Redirect::to(format!("/scan/{}", group_id));
+        return Redirect::to(format!("/scan/{group_id}"));
     }
 
     // Handle leave post
@@ -228,7 +233,7 @@ pub async fn record_scan(
         // Post holders can only scan for their assigned post
         if let Some(ref holder_post_id) = auth.post_id {
             if holder_post_id != post_id {
-                return Redirect::to(format!("/scan/{}", group_id));
+                return Redirect::to(format!("/scan/{group_id}"));
             }
         }
         let gid = group_id.clone();
@@ -248,10 +253,10 @@ pub async fn record_scan(
                     .ok();
             }
         }
-        return Redirect::to(format!("/scan/{}", group_id));
+        return Redirect::to(format!("/scan/{group_id}"));
     }
 
-    Redirect::to(format!("/scan/{}", group_id))
+    Redirect::to(format!("/scan/{group_id}"))
 }
 
 #[derive(FromForm)]
@@ -291,10 +296,10 @@ pub async fn create_group_from_scan(
             Group::insert(c, group)
         })
         .await;
-    if let Err(e) = result {
-        eprintln!("Failed to create group from scan: {}", e);
+    if let Err(err) = result {
+        eprintln!("Failed to create group from scan: {err}");
     }
-    Redirect::to(format!("/scan/{}", group_id))
+    Redirect::to(format!("/scan/{group_id}"))
 }
 
 pub fn routes() -> Vec<Route> {

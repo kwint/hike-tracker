@@ -144,6 +144,7 @@ impl Group {
             .execute(conn)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn update_details(
         conn: &mut SqliteConnection,
         group_id: &str,
