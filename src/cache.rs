@@ -16,6 +16,11 @@ impl Fairing for StaticCache {
     }
 
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
+        // Skip cache control in debug mode
+        if cfg!(debug_assertions) {
+            return;
+        }
+
         if req.uri().path().starts_with("/static/") {
             res.set_raw_header(
                 "Cache-Control",
