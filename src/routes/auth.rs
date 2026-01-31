@@ -21,15 +21,18 @@ pub fn login_page(_admin: Admin) -> Redirect {
 }
 
 #[get("/login?<next>", rank = 2)]
-pub fn login_form(cookies: &CookieJar<'_>, next: Option<String>) -> Result<Redirect, Template> {
+pub fn login_form(
+    cookies: &CookieJar<'_>,
+    next: Option<String>,
+) -> Result<Redirect, Box<Template>> {
     // Check if logged in as post holder
     if let Some(AuthSession::PostHolder { post_id }) = auth::get_current_auth(cookies) {
         return Ok(Redirect::to(format!("/post/{post_id}")));
     }
-    Err(Template::render(
+    Err(Box::new(Template::render(
         "login",
         context! { is_admin: false, next: next },
-    ))
+    )))
 }
 
 #[post("/login", data = "<form>")]
